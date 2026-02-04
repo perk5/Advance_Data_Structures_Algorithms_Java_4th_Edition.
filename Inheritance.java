@@ -1,120 +1,148 @@
-class Progression{
-    protected long first;
-    protected long current;
+import java.math.BigInteger;
 
-    Progression(){
-        first = 0;
-        current = 0;
+class Progression {
+    protected BigInteger first;
+    protected BigInteger current;
+
+    Progression() {
+        first = BigInteger.ZERO;
+        current = BigInteger.ZERO;
     }
 
-    public long firstValue(){
-        current = first;    
+    public BigInteger firstValue() {
+        current = first;
         return current;
     }
 
-    protected long nextValue(){
-        return ++current;
+    protected BigInteger nextValue() {
+        current = current.add(BigInteger.ONE);
+        return current;
     }
 
-    public void printProgression(int n){
+    public void printProgression(int n) {
         // System.out.println(firstValue());
 
-        for(int i = 1; i < n; i++){
+        for (int i = 1; i < n; i++) {
             System.out.println(nextValue());
         }
     }
 
 }
 
-class NewClass extends Progression{
+class SquareRoot extends Progression {
 
-    private long prev;
-    NewClass(){
-        this(2, 200);
+    SquareRoot() {
+        this(65536.0);
     }
 
-    NewClass(int a, int b){
-        current = a;
-        prev = b;
+    SquareRoot(double n) {
+        first = current = BigInteger.valueOf((long) n);
     }
 
-    protected long nextValue(){
-        long temp = current;
-        current = Math.abs(current - prev);
-        prev = temp;
+    protected BigInteger nextValue() {
+        double temp = current.doubleValue();
+        temp = Math.sqrt(temp);
+        current = BigInteger.valueOf((long) temp); // truncate decimal
         return current;
     }
 }
 
-class ArithProgression extends Progression{
-    protected long inc;
+class NewClass extends Progression {
 
-    ArithProgression(){
-        this(1);
+    NewClass() {
+        this(BigInteger.valueOf(2), BigInteger.valueOf(200));
     }
 
-    ArithProgression(int increment){
+    NewClass(BigInteger a, BigInteger b) {
+        first = a;
+        current = b;
+    }
+
+    protected BigInteger nextValue() {
+        BigInteger previous = current;
+        if (current.compareTo(first) > 0) {
+            current = current.subtract(first);
+        } else {
+            current = first.subtract(current);
+        }
+
+        first = previous;
+        return current.abs();
+
+    }
+}
+
+class ArithProgression extends Progression {
+    protected BigInteger inc;
+
+    ArithProgression() {
+        this(BigInteger.ONE);
+    }
+
+    ArithProgression(BigInteger increment) {
         inc = increment;
+        first = current = BigInteger.ZERO;
     }
 
-    protected long nextValue(){
-        current += inc;
+    protected BigInteger nextValue() {
+        current = current.add(inc);
         return current;
     }
 }
 
-class GeomProgression extends Progression{
+class GeomProgression extends Progression {
 
-    protected long base;
+    protected BigInteger base;
 
-    GeomProgression(){
-        this(2);
+    GeomProgression() {
+        this(BigInteger.valueOf(2));
     }
 
-    GeomProgression(long b){
+    GeomProgression(BigInteger b) {
         base = b;
-        first = 1;
+        first = BigInteger.ONE;
         current = first;
     }
 
-    protected long nextValue(){
-        current *= base;
+    protected BigInteger nextValue() {
+        current = current.multiply(base) ;
         return current;
     }
 }
 
-class Fibonacci extends Progression{
-    long prev;
+class Fibonacci extends Progression {
+    BigInteger prev;
 
-    Fibonacci(){
-        this(0,1);
+    Fibonacci() {
+        this(BigInteger.ZERO, BigInteger.ONE);
     }
 
-    Fibonacci(long value1, long value2){
+    Fibonacci(BigInteger value1, BigInteger value2) {
         first = value1;
-        prev = value2 - value1;
+        prev = value2.subtract(value1) ;
     }
 
-    protected long nextValue(){
-        
-        long temp = prev;
+    protected BigInteger nextValue() {
+
+        BigInteger temp = prev;
         prev = current;
-        current += temp;
+        current =  current.add(temp);
         return current;
     }
 }
 
 public class Inheritance {
-    public static void main(String args[]){
+    public static void main(String args[]) {
         Progression prog;
 
         // System.out.println("Arithmetic progression with default increment : ");
-        prog = new NewClass();
-        prog.printProgression(10);
-        // prog =  new ArithProgression();
+        prog = new SquareRoot();
+        prog.printProgression(8);
+        // prog.printProgression(10);
+        // prog = new ArithProgression();
         // prog.printProgression(10);
         // System.out.println("Arithmetic progression with increment 5: ");
-        // prog =  new ArithProgression(5);
+        // prog = new ArithProgression(5);
         // prog.printProgression(10);
         // System.out.println("Geometric progression with default base : ");
         // prog = new GeomProgression();

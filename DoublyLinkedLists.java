@@ -16,8 +16,6 @@ class CreateDoublyLinkedLists {
     public Node insertFromHead(String name) {
         Node newNode = new Node(name);
         if (head == null) {
-            // newNode.next = null;
-            // newNode.prev = null;
             head = newNode;
             tail = newNode;
             size++;
@@ -58,6 +56,23 @@ class CreateDoublyLinkedLists {
 
     }
 
+    public void traver(Node first){
+        Node current = first;
+                
+                if(current == null){
+                    return;
+                }
+                System.out.println("<--" + current.name + " -->");
+
+                if(current.next == null){
+                    return;
+                }
+                
+                current = current.next;
+                
+                traver(current);
+            }
+
 }
 
 class DoublyLinkedLists {
@@ -66,7 +81,8 @@ class DoublyLinkedLists {
         create.insertFromHead("First");
         create.insertFromHead("Second");
         create.insertFromTail("Zero");
+        create.traver(create.head);
 
-        create.traverse();
+        // create.traverse();
     }
 }

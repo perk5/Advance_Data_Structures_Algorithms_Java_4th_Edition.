@@ -37,7 +37,7 @@ class Score {
                 s += " , ";
             }
             s += entries[i].score;
-            
+
         }
         return s + "]";
     }
@@ -59,6 +59,26 @@ class Score {
         entries[i] = e;
 
     }
+
+    public void addElement(GameEntry e) {
+        // int newScore = e.getScore();
+        if (n == entries.length) {
+            return;
+        } else {
+            entries[n] = e;
+            n++;
+        }
+    }
+
+    public void removeElement(int i) {
+        if (i < 0 || i >= n) {
+            return;
+        }
+
+        entries[i] = entries[n - 1];
+        entries[n - 1] = null;
+        n--;
+    }
 }
 
 class Game {
@@ -66,6 +86,7 @@ class Game {
         GameEntry PS = new GameEntry("Prerak", 200);
         GameEntry RJ = new GameEntry("Raj", 300);
         GameEntry MS = new GameEntry("Mausam", 500);
+        GameEntry DS = new GameEntry("Dishant", 180);
 
         // System.out.println(GE.traverse());
 
@@ -73,6 +94,8 @@ class Game {
         Sc.add(PS);
         Sc.add(RJ);
         Sc.add(MS);
+        Sc.addElement(DS);
+        Sc.removeElement(2);
         System.out.println(Sc.traverse());
         System.out.println(Sc.n);
     }

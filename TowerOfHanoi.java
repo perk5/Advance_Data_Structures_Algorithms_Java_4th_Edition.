@@ -1,41 +1,28 @@
-import java.util.*;
-class TowerOfHanoi{
-    List<Integer> a = new ArrayList<>();
-    List<Integer> b = new ArrayList<>();
-    List<Integer> c = new ArrayList<>();
 
+class TowerOfHanoi {
+    
 
-    public void towerHanoi(){
-        if(a.size() == 1){
-            c.add(a.get(0));
-            a.remove(0);
-            transferFromBtoC();
-            System.out.println(c);
-            return;
+    public void towerHanoi(int n, int start, int end) {
+        int other = 0;
+        if (n == 1) {
+            print(start, end);
+        } else {
+            other = 6 - (start + end);
+            towerHanoi(n - 1, start, other);
+            print(start, end);
+            towerHanoi(n - 1, other, end);
         }
-
-        b.add(a.get(0));
-        a.remove(0);
-        towerHanoi();
-    }
-
-    public void transferFromBtoC(){
-        if(b.size() == 0){
-            return;
-        }
-        c.add(b.get(0));
-        b.remove(0);
-        
-        transferFromBtoC();
 
     }
 
-    public static void main(String args[]){
+    public void print(int start, int end) {
+        System.out.println("(" + start + "," + end + ")");
+    }
+
+    public static void main(String args[]) {
+
         TowerOfHanoi Toh = new TowerOfHanoi();
-        Toh.a.add(1);
-        Toh.a.add(2);
-        Toh.a.add(3);
-        Toh.a.add(4);
-        Toh.towerHanoi();
+
+        Toh.towerHanoi(4, 1, 3);
     }
-}   
+}

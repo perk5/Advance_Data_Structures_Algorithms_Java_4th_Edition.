@@ -56,24 +56,24 @@ class CreateDoublyLinkedLists {
 
     }
 
-    public void traver(Node first){
+    public void traver(Node first) {
         Node current = first;
-                
-                if(current == null){
-                    return;
-                }
-                System.out.println("<--" + current.name + " -->");
 
-                if(current.next == null){
-                    return;
-                }
-                
-                current = current.next;
-                
-                traver(current);
-            }   
+        if (current == null) {
+            return;
+        }
+        System.out.println("<--" + current.name + " -->");
 
-    public void swap(){
+        if (current.next == null) {
+            return;
+        }
+
+        current = current.next;
+
+        traver(current);
+    }
+
+    public void swap() {
         Node current = head;
 
         Node x = current.next;
@@ -86,6 +86,13 @@ class CreateDoublyLinkedLists {
         current.next.next.next = y.next;
     }
 
+    public int recursiveCountNodes(Node nodes) {
+        if (nodes == null) {
+            return 0;
+        }
+        return 1 + recursiveCountNodes(nodes.next);
+    }
+
 }
 
 class DoublyLinkedLists {
@@ -95,7 +102,8 @@ class DoublyLinkedLists {
         create.insertFromHead("Second");
         create.insertFromHead("Third");
         create.insertFromHead("Fourth");
-        create.swap();
-        create.traverse();
+        // create.swap();
+        System.out.println(create.recursiveCountNodes(create.head));
+        // create.traverse();
     }
 }

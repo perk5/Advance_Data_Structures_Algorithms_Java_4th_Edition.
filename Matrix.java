@@ -1,11 +1,11 @@
 import java.util.*;
 
-public class Matrix {
+public class Matrix<T extends Number> {
 
     public static void addMultiply() {
-        int[][] a = new int[1][3];
-        int[][] b = new int[3][2];
-        int[][] answer = new int[a.length][b[0].length];
+        Number[][] a = new Number[1][3];
+        Number[][] b = new Number[3][2];
+        Number[][] answer = new Number[a.length][b[0].length];
         Random rand = new Random(2);
 
         for (int i = 0; i < a.length; i++) {
@@ -38,9 +38,9 @@ public class Matrix {
 
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < b[0].length; j++) {
-                int sum = 0;
+                double sum = 0;
                 for (int k = 0; k < a[0].length; k++) {
-                    sum += a[i][k] * b[k][j];
+                    sum += a[i][k].doubleValue() * b[k][j].doubleValue();
                 }
                 answer[i][j] = sum;
             }

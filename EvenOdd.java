@@ -28,7 +28,5 @@ public class EvenOdd {
         int[] arr = new int[] { 3, 8, 9, 6, 5, 2 };
 
         System.out.println(Arrays.toString(EvenOdd(arr, 0, arr.length - 1)));
-
-
     }
 }

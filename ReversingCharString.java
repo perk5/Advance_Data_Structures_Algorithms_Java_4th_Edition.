@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class ReversingCharString {
 
     public static String reverseString(char[] charArr, int l, int r) {

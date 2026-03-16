@@ -1,4 +1,4 @@
-import org.w3c.dom.Node;
+
 
 interface Declaration<E> {
     int size();
@@ -84,11 +84,11 @@ public class StacksUsingGenerics {
             Node<E> bottom = b;
             String display = "";
             while (bottom != null) {
-                display = bottom.data + " --> " + display;
+                display = bottom.data + " <-- " + display;
                 bottom = bottom.next;
             }
 
-            System.out.println(display + "null");
+            System.out.println(display);
         }
 
     }
@@ -99,11 +99,8 @@ public class StacksUsingGenerics {
         SI.addAtTop(3);
         SI.addAtTop(2);
         SI.addAtTop(1);
-        SI.pop();
-        SI.pop();
-        SI.pop();
+       
 
         SI.traverse();
-        SI.reverse();
     }
 }

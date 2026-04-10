@@ -2,42 +2,43 @@ import java.util.*;
 
 public class PositionBasedNodeList {
 
-    public class InvalidPositionException extends Exception {
+    // Exceptions
+
+    public static class InvalidPositionException extends Exception {
         public InvalidPositionException(String message) {
             super(message);
         }
     }
 
-    public class BoundaryViolationException extends Exception {
+    public static class BoundaryViolationException extends Exception {
         public BoundaryViolationException(String message) {
             super(message);
         }
     }
 
-    public class ClassCastException extends Exception {
-        public ClassCastException(String message) {
-            super(message);
-        }
-    }
-
-    public class EmptyListException extends Exception {
+    public static class EmptyListException extends Exception {
         public EmptyListException(String message) {
             super(message);
         }
     }
 
+    // position Interface
+
     public interface Position {
         int element() throws InvalidPositionException;
     }
 
+    // PositionList Interface
+
     public interface PositionList {
+
         public int size();
 
         public boolean isEmpty();
 
         public Position first() throws EmptyListException;
 
-        public Position last();
+        public Position last() throws EmptyListException;
 
         public Position next(Position P) throws InvalidPositionException, BoundaryViolationException;
 
@@ -53,11 +54,13 @@ public class PositionBasedNodeList {
 
         public int remove(Position p) throws InvalidPositionException;
 
-        public int set() throws InvalidPositionException;
+        public int set(Position p, int e) throws InvalidPositionException;
 
     }
 
-    public class DNode implements Position {
+    // DNode Class
+
+    public static class DNode implements Position {
         private DNode prev, next;
         private Integer element;
 
@@ -68,9 +71,9 @@ public class PositionBasedNodeList {
         }
 
         public int element() throws InvalidPositionException {
-            if ((prev == null) && (next == null)) {
-                throw new InvalidPositionException("Position is not in a list..!");
-            }
+            // if ((prev == null) && (next == null)) {
+            // throw new InvalidPositionException("Position is not in a list..!");
+            // }
             return element;
         }
 
@@ -95,7 +98,9 @@ public class PositionBasedNodeList {
         }
     }
 
-    public class NodePositionList implements PositionList {
+    // NodePositionList Class
+
+    public static class NodePositionList implements PositionList {
         protected int numElts;
         protected DNode header, trailer;
 
@@ -106,24 +111,24 @@ public class PositionBasedNodeList {
             header.setNext(trailer);
         }
 
-        protected DNode checkPosition(Position p) throws InvalidPositionException{
-            if(p == null){
+        protected DNode checkPosition(Position p) throws InvalidPositionException {
+            if (p == null) {
                 throw new InvalidPositionException("Null position passed to NodeList");
             }
-            if(p == header){
+            if (p == header) {
                 throw new InvalidPositionException("The header is not a valid position");
             }
-            if(p == trailer){
+            if (p == trailer) {
                 throw new InvalidPositionException("The trailer is not a valid position");
             }
-            try{
+            try {
                 DNode temp = (DNode) p;
-                if((temp.getPrev() == null) || (temp.getNext() == null)){
+                if ((temp.getPrev() == null) || (temp.getNext() == null)) {
                     throw new InvalidPositionException("Position does not belong to a valid NodeList");
                 }
                 return temp;
-            }catch(ClassCastException e){
-                throw new InvalidPositionException("Position is of wrong type for this list")
+            } catch (ClassCastException e) {
+                throw new InvalidPositionException("Position is of wrong type for this list");
             }
 
         }
@@ -140,7 +145,15 @@ public class PositionBasedNodeList {
             if (isEmpty()) {
                 throw new EmptyListException("List is Empty.");
             }
+            System.out.println(numElts);
             return header.getNext();
+        }
+
+        public Position last() throws EmptyListException {
+            if (isEmpty()) {
+                throw new EmptyListException("List is Empty.");
+            }
+            return trailer.getPrev();
         }
 
         public Position prev(Position p) throws InvalidPositionException, BoundaryViolationException {
@@ -163,14 +176,13 @@ public class PositionBasedNodeList {
             return next;
         }
 
-        public void addAfter(Position p, int element) throws InvalidPositionException{
+        public void addAfter(Position p, int element) throws InvalidPositionException {
             DNode v = checkPosition(p);
 
             numElts++;
             DNode newNode = new DNode(v, v.getNext(), element);
             v.getNext().setPrev(newNode);
             v.setNext(newNode);
-
         }
 
         public void addBefore(Position p, int element) throws InvalidPositionException {
@@ -189,6 +201,13 @@ public class PositionBasedNodeList {
             header.setNext(newNode);
         }
 
+        public void addLast(int element) {
+            numElts++;
+            DNode newNode = new DNode(trailer.getPrev(), trailer, element);
+            trailer.getPrev().setNext(newNode);
+            trailer.setPrev(newNode);
+        }
+
         public int remove(Position p) throws InvalidPositionException {
             DNode v = checkPosition(p);
             numElts--;
@@ -202,7 +221,7 @@ public class PositionBasedNodeList {
             return vElem;
         }
 
-        public int set(Position p, int element) throws InvalidPositionException{
+        public int set(Position p, int element) throws InvalidPositionException {
             DNode v = checkPosition(p);
             int oldElt = v.element();
             v.setElement(element);
@@ -210,7 +229,16 @@ public class PositionBasedNodeList {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) throws Exception{
+        NodePositionList list = new NodePositionList();
+        list.addFirst(10);
+        list.addLast(20);
+        list.addLast(30);
+
+        Position p = list.first();
+        list.addAfter(p, 15);
+
+
 
     }
 

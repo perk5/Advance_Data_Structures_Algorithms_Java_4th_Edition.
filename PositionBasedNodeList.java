@@ -237,9 +237,6 @@ public class PositionBasedNodeList {
 
         Position p = list.first();
         list.addAfter(p, 15);
-
-
-
     }
 
 }

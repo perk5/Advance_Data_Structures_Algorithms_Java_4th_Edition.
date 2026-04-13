@@ -58,7 +58,7 @@ public class PositionBasedNodeList {
 
         public E set(Position<E> p, E e) throws InvalidPositionException;
 
-        public Iterable<Position<E>> positions() throws Exception;
+        public Iterable<Position<E>> positions()throws EmptyListException, InvalidPositionException, BoundaryViolationException;
 
     }
 
@@ -288,7 +288,8 @@ public class PositionBasedNodeList {
             return s;
         }
 
-        public Iterable<Position<E>> positions() throws Exception {
+        public Iterable<Position<E>> positions()
+                throws EmptyListException, InvalidPositionException, BoundaryViolationException {
             PositionList<Position<E>> P = new NodePositionList<Position<E>>();
             if (!isEmpty()) {
                 Position<E> p = first();
@@ -304,11 +305,11 @@ public class PositionBasedNodeList {
         }
     }
 
-    public static class FavouriteList<E> {
+    public static class FavoriteList<E> {
 
         protected PositionList<Entry<E>> fList;
 
-        public FavouriteList() {
+        public FavoriteList() {
             fList = new NodePositionList<>();
         }
 
@@ -320,19 +321,16 @@ public class PositionBasedNodeList {
             return fList.isEmpty();
         }
 
-        public void remove(E obj) {
+        public void remove(E obj) throws InvalidPositionException {
             Position<Entry<E>> p = find(obj);
             if (p != null) {
-                try {
-                    fList.remove(p);
-                } catch (Exception e) {
-                    throw new NoSuchElementException("Can't find the object to remove");
-                }
+
+                fList.remove(p);
 
             }
         }
 
-        protected E value(Position<Entry<E>> p) throws Exception{
+        protected E value(Position<Entry<E>> p) throws InvalidPositionException {
             return (p.element()).value();
         }
 
@@ -344,38 +342,28 @@ public class PositionBasedNodeList {
                     }
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e); // wrap it
+                throw new RuntimeException(e);
             }
             return null;
         }
 
-        public void access(E obj) {
+        public void access(E obj)
+                throws EmptyListException,
+                BoundaryViolationException,
+                InvalidPositionException {
             Position<Entry<E>> p = find(obj);
             if (p != null) {
-                try {
-                    p.element().incrementCount();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-
+                p.element().incrementCount();
             } else {
-                fList.addLast(new Entry<E>(obj));
-                try {
-                    p = fList.last();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-
+                fList.addLast(new Entry<>(obj));
+                p = fList.last();
             }
-            try {
-                moveUp(p);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
+            moveUp(p);
         }
 
-        protected void moveUp(Position<Entry<E>> cur) throws Exception {
+        protected void moveUp(Position<Entry<E>> cur) throws EmptyListException,
+                BoundaryViolationException,
+                InvalidPositionException {
             Entry<E> e = cur.element();
             int c = count(cur);
             while (cur != fList.first()) {
@@ -389,7 +377,7 @@ public class PositionBasedNodeList {
             fList.set(cur, e);
         }
 
-        public Iterable<E> top(int k) {
+        public Iterable<E> top(int k) throws EmptyListException, InvalidPositionException, BoundaryViolationException {
             if (k < 0 || k > size()) {
                 throw new IllegalArgumentException("Invalid argument");
             }
@@ -409,7 +397,7 @@ public class PositionBasedNodeList {
             return fList.toString();
         }
 
-        protected int count(Position<Entry<E>> p) throws Exception {
+        protected int count(Position<Entry<E>> p) {
             try {
                 return (p.element()).count();
             } catch (Exception e) {
@@ -444,10 +432,56 @@ public class PositionBasedNodeList {
             }
 
         }
-
     }
 
-    public static void main(String[] args) throws Exception {
+    public static class FavoriteListMTF<E> extends FavoriteList<E> {
+
+        public FavoriteListMTF() {
+
+        }
+
+        @Override
+        protected void moveUp(Position<Entry<E>> pos) throws InvalidPositionException {
+            fList.addFirst(fList.remove(pos));
+        }
+
+        @Override
+        public Iterable<E> top(int k) throws EmptyListException, InvalidPositionException, BoundaryViolationException {
+            if (k < 0 || k > size()) {
+                throw new IllegalArgumentException("Invalid argument");
+            }
+            PositionList<E> T = new NodePositionList<E>();
+
+            if (!isEmpty()) {
+                PositionList<Entry<E>> C = new NodePositionList<Entry<E>>();
+                for (Entry<E> e : fList) {
+                    C.addLast(e);
+                }
+                for (int i = 0; i < k; i++) {
+                    Position<Entry<E>> maxPos = null;
+                    int maxCount = -1;
+
+                    for (Position<Entry<E>> p : C.positions()) {
+                        int c = count(p);
+                        if (c > maxCount) {
+                            maxCount = c;
+                            maxPos = p;
+                        }
+                    }
+
+                    T.addLast(value(maxPos));
+                    C.remove(maxPos);
+
+                }
+
+            }
+            return T;
+        }
+    }
+
+    public static void main(String[] args) throws EmptyListException,
+            BoundaryViolationException,
+            InvalidPositionException {
         NodePositionList<Integer> list = new NodePositionList<>();
         list.addFirst(10);
         list.addLast(20);

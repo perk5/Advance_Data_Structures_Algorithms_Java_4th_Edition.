@@ -22,7 +22,7 @@ public class PositionBasedNodeList {
         }
     }
 
-    // position Interface
+    // Position Interface
 
     public interface Position<E> {
         E element() throws InvalidPositionException;
@@ -30,9 +30,9 @@ public class PositionBasedNodeList {
 
     // PositionList Interface
 
-    public interface PositionList<E> extends Iterable<Position<E>> {
+    public interface PositionList<E> extends Iterable<E> {
 
-        public Iterator<Position<E>> iterator();
+        public Iterator<E> iterator();
 
         public int size();
 
@@ -58,7 +58,7 @@ public class PositionBasedNodeList {
 
         public E set(Position<E> p, E e) throws InvalidPositionException;
 
-        // public Iterable<Position<E>> positions() throws Exception;
+        public Iterable<Position<E>> positions() throws Exception;
 
     }
 
@@ -76,7 +76,7 @@ public class PositionBasedNodeList {
 
         public E element() throws InvalidPositionException {
             // if ((prev == null) && (next == null)) {
-            //     throw new InvalidPositionException("Position is not in a list..!");
+            // throw new InvalidPositionException("Position is not in a list..!");
             // }
             return element;
         }
@@ -231,7 +231,7 @@ public class PositionBasedNodeList {
             return oldElt;
         }
 
-        class ElementIterator implements Iterator<Position<E>> {
+        public class ElementIterator implements Iterator<E> {
             protected PositionList<E> list;
             protected Position<E> cursor;
 
@@ -249,14 +249,14 @@ public class PositionBasedNodeList {
                 return cursor != null;
             }
 
-            public Position<E> next() {
+            public E next() {
                 if (cursor == null)
                     throw new NoSuchElementException("No Next Element...!");
 
-                Position<E> toReturn;
+                E toReturn;
 
                 try {
-                    toReturn = cursor;
+                    toReturn = cursor.element();
 
                     if (cursor == list.last())
                         cursor = null;
@@ -266,17 +266,16 @@ public class PositionBasedNodeList {
                 } catch (Exception e) {
                     throw new NoSuchElementException("Iterator error");
                 }
-
                 return toReturn;
             }
         }
 
-        public Iterator<Position<E>> iterator() {
+        public Iterator<E> iterator() {
             return new ElementIterator(this);
         }
 
-        public String toString() {
-            Iterator<Position<E>> it = this.iterator();
+        public String toString(PositionList<E> l) {
+            Iterator<E> it = l.iterator();
             String s = "[";
             while (it.hasNext()) {
                 s += it.next();
@@ -285,11 +284,12 @@ public class PositionBasedNodeList {
                 }
             }
             s += "]";
+
             return s;
         }
 
-        public Iterable<Position<E>> positions(){
-            PositionList<Position<E>> P = new NodePositionList<>();
+        public Iterable<Position<E>> positions() throws Exception {
+            PositionList<Position<E>> P = new NodePositionList<Position<E>>();
             if (!isEmpty()) {
                 Position<E> p = first();
                 while (true) {
@@ -304,139 +304,163 @@ public class PositionBasedNodeList {
         }
     }
 
-    // public static class FavouriteList {
+    public static class FavouriteList<E> {
 
-    //     protected PositionList fList;
+        protected PositionList<Entry<E>> fList;
 
-    //     public FavouriteList() {
-    //         fList = new NodePositionList<>();
-    //     }
+        public FavouriteList() {
+            fList = new NodePositionList<>();
+        }
 
-    //     public int size() {
-    //         return fList.size();
-    //     }
+        public int size() {
+            return fList.size();
+        }
 
-    //     public boolean isEmpty() {
-    //         return fList.isEmpty();
-    //     }
+        public boolean isEmpty() {
+            return fList.isEmpty();
+        }
 
-    //     public void remove(Position obj) {
-    //         Position p = find(obj);
-    //         if (p != null) {
-    //             try {
-    //                 fList.remove(p);
-    //             } catch (Exception e) {
-    //                 throw new NoSuchElementException("Can't find the object to remove");
-    //             }
+        public void remove(E obj) {
+            Position<Entry<E>> p = find(obj);
+            if (p != null) {
+                try {
+                    fList.remove(p);
+                } catch (Exception e) {
+                    throw new NoSuchElementException("Can't find the object to remove");
+                }
 
-    //         }
-    //     }
+            }
+        }
 
-    //     protected int value(Position p) {
-    //         return (p.element()).value();
-    //     }
+        protected E value(Position<Entry<E>> p) throws Exception{
+            return (p.element()).value();
+        }
 
-    //     protected Position find(Position obj) {
-    //         try {
-    //             for (Position p : fList.positions()) {
-    //                 if (value(p).equals(obj)) {
-    //                     return p;
-    //                 }
-    //             }
-    //         } catch (Exception e) {
-    //             throw new RuntimeException(e); // wrap it
-    //         }
-    //         return null;
-    //     }
+        protected Position<Entry<E>> find(E obj) {
+            try {
+                for (Position<Entry<E>> p : fList.positions()) {
+                    if (value(p).equals(obj)) {
+                        return p;
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e); // wrap it
+            }
+            return null;
+        }
 
-    //     public void access(int obj) {
-    //         Position p = find(obj);
-    //         if (p != null) {
-    //             p.element().incrementCount();
-    //         } else {
-    //             fList.addLast(new Entry(obj));
-    //             p.fList.last();
-    //         }
-    //         moveUp(p);
-    //     }
+        public void access(E obj) {
+            Position<Entry<E>> p = find(obj);
+            if (p != null) {
+                try {
+                    p.element().incrementCount();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
 
-    //     protected void moveUp(Position cur) {
-    //         Entry e = cur.element();
-    //         int c = count(cur);
-    //         while (cur != fList.first()) {
-    //             Position prev = fList.prev(cur);
-    //             if (c <= count(prev)) {
-    //                 break;
-    //             }
-    //             fList.set(cur, prev.element());
-    //             cur = prev;
-    //         }
-    //     }
+            } else {
+                fList.addLast(new Entry<E>(obj));
+                try {
+                    p = fList.last();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
 
-    //     public Iterable top(int k) {
-    //         if (k < 0 || k > size()) {
-    //             throw new IllegalArgumentException("Invalid argument");
-    //         }
-    //         PositionList T = new NodePositionList();
+            }
+            try {
+                moveUp(p);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
-    //         int i = 0;
-    //         for (Entry e : fList) {
-    //             if (i++ >= k) {
-    //                 break;
-    //             }
-    //             T.addLast(e.value());
-    //         }
-    //         return T;
-    //     }
+        }
 
-    //     public String toString() {
-    //         return fList.toString();
-    //     }
+        protected void moveUp(Position<Entry<E>> cur) throws Exception {
+            Entry<E> e = cur.element();
+            int c = count(cur);
+            while (cur != fList.first()) {
+                Position<Entry<E>> prev = fList.prev(cur);
+                if (c <= count(prev)) {
+                    break;
+                }
+                fList.set(cur, prev.element());
+                cur = prev;
+            }
+            fList.set(cur, e);
+        }
 
-    //     protected int count(Position p) {
-    //         return (p.element()).count();
-    //     }
+        public Iterable<E> top(int k) {
+            if (k < 0 || k > size()) {
+                throw new IllegalArgumentException("Invalid argument");
+            }
+            PositionList<E> T = new NodePositionList<E>();
 
-    //     protected static class Entry {
-    //         private int value;
-    //         private int count;
+            int i = 0;
+            for (Entry<E> e : fList) {
+                if (i++ >= k) {
+                    break;
+                }
+                T.addLast(e.value());
+            }
+            return T;
+        }
 
-    //         Entry(int v) {
-    //             count = 1;
-    //             value = v;
-    //         }
+        public String toString() {
+            return fList.toString();
+        }
 
-    //         public int value(){
-    //             return value;
-    //         }
+        protected int count(Position<Entry<E>> p) throws Exception {
+            try {
+                return (p.element()).count();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
-    //         public int count() {
-    //             return count;
-    //         }
+        }
 
-    //         public int incrementCount() {
-    //             return ++count;
-    //         }
+        protected static class Entry<E> {
+            private E value;
+            private int count;
 
-    //         public String toString() {
-    //             return "[" + count + ", " + value + "]";
-    //         }
+            Entry(E v) {
+                count = 1;
+                value = v;
+            }
 
-    //     }
+            public E value() {
+                return value;
+            }
 
-    // }
+            public int count() {
+                return count;
+            }
+
+            public int incrementCount() {
+                return ++count;
+            }
+
+            public String toString() {
+                return "[" + count + ", " + value + "]";
+            }
+
+        }
+
+    }
 
     public static void main(String[] args) throws Exception {
         NodePositionList<Integer> list = new NodePositionList<>();
         list.addFirst(10);
         list.addLast(20);
         list.addLast(30);
+        ;
 
-        System.out.println(list.toString());
+        System.out.println(list.toString(list));
 
         Position<Integer> p = list.first();
         list.addAfter(p, 15);
-        System.out.println(list.toString());
+        System.out.println(list.toString(list));
+        // System.out.println(list.toString());
+
     }
 
 }

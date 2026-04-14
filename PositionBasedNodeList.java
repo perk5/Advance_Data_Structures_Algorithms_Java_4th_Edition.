@@ -58,7 +58,8 @@ public class PositionBasedNodeList {
 
         public E set(Position<E> p, E e) throws InvalidPositionException;
 
-        public Iterable<Position<E>> positions()throws EmptyListException, InvalidPositionException, BoundaryViolationException;
+        public Iterable<Position<E>> positions()
+                throws EmptyListException, InvalidPositionException, BoundaryViolationException;
 
     }
 
@@ -288,6 +289,21 @@ public class PositionBasedNodeList {
             return s;
         }
 
+        @Override
+        public String toString() {
+            Iterator<E> it = iterator();
+            String s = "[";
+
+            while (it.hasNext()) {
+                s += it.next();
+                if (it.hasNext())
+                    s += ", ";
+            }
+
+            s += "]";
+            return s;
+        }
+
         public Iterable<Position<E>> positions()
                 throws EmptyListException, InvalidPositionException, BoundaryViolationException {
             PositionList<Position<E>> P = new NodePositionList<Position<E>>();
@@ -486,14 +502,29 @@ public class PositionBasedNodeList {
         list.addFirst(10);
         list.addLast(20);
         list.addLast(30);
-        ;
 
         System.out.println(list.toString(list));
 
         Position<Integer> p = list.first();
         list.addAfter(p, 15);
+
         System.out.println(list.toString(list));
-        // System.out.println(list.toString());
+
+        FavoriteList<Integer> f = new FavoriteList<>();
+        
+
+        f.access(10);
+        f.access(20);
+
+        f.access(20);f.access(20);
+        f.access(10);
+        f.access(20);
+        f.access(10);
+
+        System.out.println(f.toString());
+
+        // f.access(p.element());
+        // System.out.println(f.toString());
 
     }
 

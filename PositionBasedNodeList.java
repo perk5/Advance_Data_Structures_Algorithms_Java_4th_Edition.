@@ -52,7 +52,7 @@ public class PositionBasedNodeList {
 
         public void addAfter(Position<E> p, E e) throws InvalidPositionException;
 
-        public void addBefore(Position<E> p, E e) throws InvalidPositionException;
+        public void addBefore(Position<E> p, E e) throws InvalidPositionException, EmptyListException, BoundaryViolationException;
 
         public E remove(Position<E> p) throws InvalidPositionException;
 
@@ -60,6 +60,8 @@ public class PositionBasedNodeList {
 
         public Iterable<Position<E>> positions()
                 throws EmptyListException, InvalidPositionException, BoundaryViolationException;
+
+        public void reverse();
 
     }
 
@@ -114,6 +116,27 @@ public class PositionBasedNodeList {
             header = new DNode<E>(null, null, null);
             trailer = new DNode<E>(header, null, null);
             header.setNext(trailer);
+        }
+
+        public void reverse() {
+
+            DNode<E> current = header;
+
+            while (current != null) {
+
+                // swap next and prev pointers
+                DNode<E> temp = current.getNext();
+                current.setNext(current.getPrev());
+                current.setPrev(temp);
+
+                // move to next node in original order
+                current = temp;
+            }
+
+            // swap header and trailer references
+            DNode<E> temp = header;
+            header = trailer;
+            trailer = temp;
         }
 
         protected DNode<E> checkPosition(Position<E> p) throws InvalidPositionException {
@@ -189,13 +212,20 @@ public class PositionBasedNodeList {
             v.setNext(newNode);
         }
 
-        public void addBefore(Position<E> p, E element) throws InvalidPositionException {
-            DNode<E> v = checkPosition(p);
+        public void addBefore(Position<E> p, E element) throws InvalidPositionException, EmptyListException, BoundaryViolationException {
+            p = checkPosition(p);
 
-            numElts++;
-            DNode<E> newNode = new DNode<E>(v.getPrev(), v, element);
-            v.getPrev().setNext(newNode);
-            v.setPrev(newNode);
+            p = checkPosition(p);
+
+            if (p == first())
+                addFirst(element);
+            else
+                addAfter(prev(p), element);
+
+            // numElts++;
+            // DNode<E> newNode = new DNode<E>(v.getPrev(), v, element);
+            // v.getPrev().setNext(newNode);
+            // v.setPrev(newNode);
         }
 
         public void addFirst(E element) {
@@ -506,24 +536,25 @@ public class PositionBasedNodeList {
         System.out.println(list.toString(list));
 
         Position<Integer> p = list.first();
-        list.addAfter(p, 15);
+        // Position<Integer> p2 = list.last();
+        // list.addAfter(p, 15);
+        
+        list.addBefore(p, 12);
 
         System.out.println(list.toString(list));
+        // list.reverse();
+        // System.out.println(list.toString(list));
 
-        FavoriteList<Integer> f = new FavoriteList<>();
-        
+        // FavoriteList<Integer> f = new FavoriteList<>();
 
-        f.access(10);
-        f.access(20);
+        // f.access(10);
+        // f.access(20);
 
-        f.access(20);f.access(20);
-        f.access(10);
-        f.access(20);
-        f.access(10);
+        // f.access(20);f.access(20);
+        // f.access(10);
+        // f.access(20);
+        // f.access(10);
 
-        System.out.println(f.toString());
-
-        // f.access(p.element());
         // System.out.println(f.toString());
 
     }

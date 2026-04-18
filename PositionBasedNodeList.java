@@ -52,7 +52,8 @@ public class PositionBasedNodeList {
 
         public void addAfter(Position<E> p, E e) throws InvalidPositionException;
 
-        public void addBefore(Position<E> p, E e) throws InvalidPositionException, EmptyListException, BoundaryViolationException;
+        public void addBefore(Position<E> p, E e)
+                throws InvalidPositionException, EmptyListException, BoundaryViolationException;
 
         public E remove(Position<E> p) throws InvalidPositionException;
 
@@ -70,11 +71,13 @@ public class PositionBasedNodeList {
     public static class DNode<E> implements Position<E> {
         private DNode<E> prev, next;
         private E element;
+        private NodePositionList<E> list;
 
-        public DNode(DNode<E> newPrev, DNode<E> newNext, E elem) {
+        public DNode(DNode<E> newPrev, DNode<E> newNext, E elem, NodePositionList<E> list) {
             this.element = elem;
             this.prev = newPrev;
             this.next = newNext;
+            this.list = list;
         }
 
         public E element() throws InvalidPositionException {
@@ -113,8 +116,8 @@ public class PositionBasedNodeList {
 
         public NodePositionList() {
             numElts = 0;
-            header = new DNode<E>(null, null, null);
-            trailer = new DNode<E>(header, null, null);
+            header = new DNode<E>(null, null, null, this);
+            trailer = new DNode<E>(header, null, null, this);
             header.setNext(trailer);
         }
 
@@ -149,11 +152,15 @@ public class PositionBasedNodeList {
             if (p == trailer) {
                 throw new InvalidPositionException("The trailer is not a valid position");
             }
+
             try {
                 DNode<E> temp = (DNode<E>) p;
                 if ((temp.getPrev() == null) || (temp.getNext() == null)) {
                     throw new InvalidPositionException("Position does not belong to a valid NodeList");
                 }
+                if (temp.list != this)
+                    throw new InvalidPositionException(
+                            "Position does not belong to this list");
                 return temp;
             } catch (ClassCastException e) {
                 throw new InvalidPositionException("Position is of wrong type for this list");
@@ -207,12 +214,13 @@ public class PositionBasedNodeList {
             DNode<E> v = checkPosition(p);
 
             numElts++;
-            DNode<E> newNode = new DNode<E>(v, v.getNext(), element);
+            DNode<E> newNode = new DNode<E>(v, v.getNext(), element, this);
             v.getNext().setPrev(newNode);
             v.setNext(newNode);
         }
 
-        public void addBefore(Position<E> p, E element) throws InvalidPositionException, EmptyListException, BoundaryViolationException {
+        public void addBefore(Position<E> p, E element)
+                throws InvalidPositionException, EmptyListException, BoundaryViolationException {
             p = checkPosition(p);
 
             p = checkPosition(p);
@@ -230,14 +238,14 @@ public class PositionBasedNodeList {
 
         public void addFirst(E element) {
             numElts++;
-            DNode<E> newNode = new DNode<E>(header, header.getNext(), element);
+            DNode<E> newNode = new DNode<E>(header, header.getNext(), element, this);
             header.getNext().setPrev(newNode);
             header.setNext(newNode);
         }
 
         public void addLast(E element) {
             numElts++;
-            DNode<E> newNode = new DNode<E>(trailer.getPrev(), trailer, element);
+            DNode<E> newNode = new DNode<E>(trailer.getPrev(), trailer, element, this);
             trailer.getPrev().setNext(newNode);
             trailer.setPrev(newNode);
         }
@@ -529,6 +537,7 @@ public class PositionBasedNodeList {
             BoundaryViolationException,
             InvalidPositionException {
         NodePositionList<Integer> list = new NodePositionList<>();
+        NodePositionList<Integer> list1 = new NodePositionList<>();
         list.addFirst(10);
         list.addLast(20);
         list.addLast(30);
@@ -538,8 +547,8 @@ public class PositionBasedNodeList {
         Position<Integer> p = list.first();
         // Position<Integer> p2 = list.last();
         // list.addAfter(p, 15);
-        
-        list.addBefore(p, 12);
+
+        list.addAfter(p, 12);
 
         System.out.println(list.toString(list));
         // list.reverse();
@@ -559,4 +568,22 @@ public class PositionBasedNodeList {
 
     }
 
-}
+    }
+//Bubble sorting Dummy Code....!!
+// method swapping{
+    // Node temp;
+    // boolean swapped = true;
+    // while(swapped){ 
+    //     swapped = false; 
+    //     temp= header.next;
+    //     while(temp.next != trailer){ 
+    //         if(temp.element > temp.next.element){ 
+    //             swapped = true; 
+    //             E t = temp.element; 
+    //             temp.element = temp.next.element; 
+    //             temp.next.element = t; 
+    //         } 
+    //             temp = temp.next; 
+    //     } 
+    //     }
+// }

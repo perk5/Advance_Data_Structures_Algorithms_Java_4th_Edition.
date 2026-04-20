@@ -39,15 +39,14 @@ public class BobAlicePackets {
 
     public static void main(String[] args) {
         List<Message> m = new ArrayList<>();
-        m.add(new Message(2, "B"));
-        m.add(new Message(1, "A"));
-        m.add(new Message(3, "C"));
-        m.add(new Message(4, "D"));
+        m.add(new Message(2, "I "));
+        m.add(new Message(1, "Hi "));
+        m.add(new Message(3, "am "));
+        m.add(new Message(4, "Prerak."));
 
         DisplayMessage Dm = new DisplayMessage();
-        String mess = Dm.correctMessage(m);
 
-        System.out.println(mess);
+        System.out.println(Dm.correctMessage(m));
 
     }
 }

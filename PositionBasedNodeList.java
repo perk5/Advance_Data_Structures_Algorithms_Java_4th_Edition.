@@ -27,6 +27,8 @@ public class PositionBasedNodeList {
     public interface Position<E> {
         E element() throws InvalidPositionException;
     }
+   
+    
 
     // PositionList Interface
 

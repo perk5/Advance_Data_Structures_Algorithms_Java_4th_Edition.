@@ -1,7 +1,4 @@
-import java.security.PEMRecord;
 import java.util.*;
-
-import javax.swing.text.Position;
 
 public class Tree {
 
@@ -59,44 +56,6 @@ public class Tree {
         void setParent(BTPosition<E> v);
 
         BTPosition<E> getParent();
-    }
-
-    // Interface Trees
-
-    public interface Trees<E> {
-
-        public int size();
-
-        public boolean isEmpty();
-
-        public Iterator<Position<E>> intrator() throws InvalidPositionException, EmptyTreeException;
-
-        public E replace(Position<E> v, E e) throws InvalidPositionException;
-
-        public Position<E> root() throws EmptyTreeException;
-
-        public Position<E> parent() throws InvalidPositionException, BoundaryViolationException;
-
-        public Iterable<Position<E>> children(BTPosition<E> v)
-                throws InvalidPositionException, BoundaryViolationException;
-
-        public boolean isInternal(Position<E> v) throws InvalidPositionException;
-
-        public boolean isExternal(Position<E> v) throws InvalidPositionException;
-
-        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException;
-    }
-
-    // Interface BinaryTree
-
-    public interface BinaryTree<E> extends Trees<E> {
-        BTPosition<E> left(BTPosition<E> v) throws InvalidPositionException, BoundaryViolationException;
-
-        BTPosition<E> right(BTPosition<E> v) throws InvalidPositionException, BoundaryViolationException;
-
-        boolean hasLeft(BTPosition<E> v) throws InvalidPositionException;
-
-        boolean hasRight(BTPosition<E> v) throws InvalidPositionException;;
     }
 
     // PositionList Interface
@@ -424,9 +383,50 @@ public class Tree {
         }
     }
 
+    // Interface Trees
+
+    public interface Trees<E> {
+
+        public int size();
+
+        public boolean isEmpty();
+
+        public Iterator<E> iterator() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException;
+
+        public Iterable<Position<E>> positions()
+                throws InvalidPositionException, EmptyTreeException, BoundaryViolationException;
+
+        public E replace(Position<E> v, E e) throws InvalidPositionException;
+
+        public Position<E> root() throws EmptyTreeException;
+
+        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        public Iterable<Position<E>> children(Position<E> v)
+                throws InvalidPositionException, BoundaryViolationException;
+
+        public boolean isInternal(Position<E> v) throws InvalidPositionException;
+
+        public boolean isExternal(Position<E> v) throws InvalidPositionException;
+
+        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException;
+    }
+
+    // Interface BinaryTree
+
+    public interface BinaryTree<E> extends Trees<E> {
+        public Position<E> left(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        public Position<E> right(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        public boolean hasLeft(Position<E> v) throws InvalidPositionException;
+
+        public boolean hasRight(Position<E> v) throws InvalidPositionException;
+    }
+
     // Class LinkedBinaryTree
 
-    public class LinkedBinaryTree<E> implements BinaryTree<E> {
+    public static class LinkedBinaryTree<E> implements BinaryTree<E> {
 
         protected BTPosition<E> root;
         protected int size;
@@ -440,14 +440,24 @@ public class Tree {
             return size;
         }
 
-        public boolean isInternal(Position<E> v) throws InvalidPositionException {
-            checkPosition(v);
-            return (hasLeft(v) || hasRight(v));
+        public boolean isEmpty() {
+            return size == 0;
         }
 
-        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException {
-            checkPosition(v);
-            return (v == root());
+        public Iterator<E> iterator() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
+            Iterable<Position<E>> positions = positions();
+            PositionList<E> elements = new NodePositionList<E>();
+            for (Position<E> pos : positions) {
+                elements.addLast(pos.element());
+            }
+            return elements.iterator();
+        }
+
+        public E replace(Position<E> v, E o) throws InvalidPositionException {
+            BTPosition<E> vv = checkPosition(v);
+            E temp = v.element();
+            vv.setElement(o);
+            return temp;
         }
 
         public Position<E> root() throws EmptyTreeException {
@@ -455,6 +465,45 @@ public class Tree {
                 throw new EmptyTreeException("The tree is Empty");
             }
             return root;
+        }
+
+        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+            BTPosition<E> vv = checkPosition(v);
+            Position<E> parentPos = vv.getParent();
+            if (parentPos == null) {
+                throw new BoundaryViolationException("No Parent.");
+            }
+            return parentPos;
+        }
+
+        public Iterable<Position<E>> children(Position<E> v)
+                throws InvalidPositionException, BoundaryViolationException {
+            PositionList<Position<E>> children = new NodePositionList<Position<E>>();
+
+            if (hasLeft(v)) {
+                children.addLast(left(v));
+            }
+
+            if (hasRight(v)) {
+                children.addLast(right(v));
+            }
+            return children;
+        }
+
+        public boolean isInternal(Position<E> v) throws InvalidPositionException {
+            checkPosition(v);
+            return (hasLeft(v) || hasRight(v));
+        }
+
+        public boolean isExternal(Position<E> v) throws InvalidPositionException {
+            checkPosition(v);
+            return (!hasLeft(v) && !hasRight(v));
+
+        }
+
+        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException {
+            checkPosition(v);
+            return v == root();
         }
 
         public boolean hasLeft(Position<E> v) throws InvalidPositionException {
@@ -487,52 +536,13 @@ public class Tree {
             return rightPos;
         }
 
-        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
-            BTPosition<E> vv = checkPosition(v);
-            Position<E> parentPos = vv.getLeft();
-            if (parentPos == null) {
-                throw new BoundaryViolationException("No Parent.");
-            }
-            return parentPos;
-        }
-
-        public Iterable<Position<E>> children(Position<E> v)
-                throws InvalidPositionException, BoundaryViolationException {
-            PositionList<Position<E>> children = new NodePositionList<Position<E>>();
-
-            if (hasLeft(v)) {
-                children.addLast(left(v));
-            }
-
-            if (hasRight(v)) {
-                children.addLast(right(v));
-            }
-            return children;
-        }
-
         public Iterable<Position<E>> positions()
                 throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
             PositionList<Position<E>> position = new NodePositionList<Position<E>>();
-            if (size == 0) {
+            if (size != 0) {
                 preorderPositions(root(), position);
             }
             return position;
-        }
-
-        public Iterator<E> iterator() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
-            Iterable<Position<E>> positions = positions();
-            PositionList<E> elements = new NodePositionList<E>();
-            for (Position<E> pos : positions) {
-                elements.addLast(pos.element());
-            }
-            return elements.iterator();
-        }
-
-        public E replace(Position<E> v, E o) throws InvalidPositionException {
-            BTPosition<E> vv = checkPosition(v);
-            E temp = v.element();
-            vv.setElement(o);
-            return temp;
         }
 
         public Position<E> sibling(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
@@ -574,6 +584,18 @@ public class Tree {
             return ww;
         }
 
+         public Position<E> insertRight(Position<E> v, E e) throws InvalidPositionException {
+            BTPosition<E> vv = checkPosition(v);
+            Position<E> rightPos = vv.getRight();
+            if (rightPos != null) {
+                throw new InvalidPositionException("Node already has a left child");
+            }
+            BTPosition<E> ww = createNode(e, vv, null, null);
+            vv.setRight(ww);
+            size++;
+            return ww;
+        }
+
         public E remove(Position<E> v) throws InvalidPositionException {
             BTPosition<E> vv = checkPosition(v);
             BTPosition<E> leftPos = vv.getLeft();
@@ -611,6 +633,31 @@ public class Tree {
             return v.element();
 
         }
+
+        // Work in Progress traversal logic..
+
+        // public void traverse() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException{
+        //     StringBuilder s = new StringBuilder();
+        //     int count = 0;
+        //     Position<E> prevPosition = null;
+        //     for(Position<E> p : positions()){
+        //         for(int i = count; i < 3; i++){
+        //             s.append(" ");
+        //         }
+        //         s.append(p.element());
+        //         for(int i = count; i < 2; i++){
+        //             s.append(" ");
+        //         }
+        //         if(prevPosition != null){
+        //             BTPosition<E> vv = checkPosition(prevPosition);
+        //             s.append(vv.getRight().element());
+        //         }
+        //         System.out.println(s);
+        //         prevPosition = p;
+        //         count++;
+        //         s.setLength(0);
+        //     }
+        // }
 
         public void attach(Position<E> v, BinaryTree<E> T1, BinaryTree<E> T2)
                 throws InvalidPositionException, EmptyTreeException {
@@ -657,7 +704,7 @@ public class Tree {
 
     // Class BTNode
 
-    public class BTNode<E> implements BTPosition<E> {
+    public static class BTNode<E> implements BTPosition<E> {
         private E element;
         private BTPosition<E> parent, left, right;
 
@@ -699,5 +746,20 @@ public class Tree {
         public BTPosition<E> getRight() {
             return right;
         }
+    }
+
+    public static void main(String[] args) throws NonEmptyTreeException, InvalidPositionException, EmptyTreeException, BoundaryViolationException {
+        LinkedBinaryTree<Integer> LB = new LinkedBinaryTree<>();
+
+        Position<Integer> p = LB.addRoot(1);
+        LB.insertLeft(p, 2);
+        LB.insertRight(p, 3);
+        // LB.insertLeft(firstLeft, 4);
+        // LB.insertRight(firstLeft, 5);
+
+        // System.out.println();
+        // LB.traverse();
+        boolean ans = LB.hasRight(p);
+        System.out.println(ans);
     }
 }

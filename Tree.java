@@ -584,7 +584,7 @@ public class Tree {
             return ww;
         }
 
-         public Position<E> insertRight(Position<E> v, E e) throws InvalidPositionException {
+        public Position<E> insertRight(Position<E> v, E e) throws InvalidPositionException {
             BTPosition<E> vv = checkPosition(v);
             Position<E> rightPos = vv.getRight();
             if (rightPos != null) {
@@ -636,27 +636,28 @@ public class Tree {
 
         // Work in Progress traversal logic..
 
-        // public void traverse() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException{
-        //     StringBuilder s = new StringBuilder();
-        //     int count = 0;
-        //     Position<E> prevPosition = null;
-        //     for(Position<E> p : positions()){
-        //         for(int i = count; i < 3; i++){
-        //             s.append(" ");
-        //         }
-        //         s.append(p.element());
-        //         for(int i = count; i < 2; i++){
-        //             s.append(" ");
-        //         }
-        //         if(prevPosition != null){
-        //             BTPosition<E> vv = checkPosition(prevPosition);
-        //             s.append(vv.getRight().element());
-        //         }
-        //         System.out.println(s);
-        //         prevPosition = p;
-        //         count++;
-        //         s.setLength(0);
-        //     }
+        // public void traverse() throws InvalidPositionException, EmptyTreeException,
+        // BoundaryViolationException{
+        // StringBuilder s = new StringBuilder();
+        // int count = 0;
+        // Position<E> prevPosition = null;
+        // for(Position<E> p : positions()){
+        // for(int i = count; i < 3; i++){
+        // s.append(" ");
+        // }
+        // s.append(p.element());
+        // for(int i = count; i < 2; i++){
+        // s.append(" ");
+        // }
+        // if(prevPosition != null){
+        // BTPosition<E> vv = checkPosition(prevPosition);
+        // s.append(vv.getRight().element());
+        // }
+        // System.out.println(s);
+        // prevPosition = p;
+        // count++;
+        // s.setLength(0);
+        // }
         // }
 
         public void attach(Position<E> v, BinaryTree<E> T1, BinaryTree<E> T2)
@@ -748,7 +749,47 @@ public class Tree {
         }
     }
 
-    public static void main(String[] args) throws NonEmptyTreeException, InvalidPositionException, EmptyTreeException, BoundaryViolationException {
+    // EulerTour...
+
+    public abstract class EularTour<E, R> {
+        protected BinaryTree<E> tree;
+
+        public abstract R execute(BinaryTree<E> T);
+
+        protected void init(BinaryTree<E> T) {
+            tree = T;
+        }
+
+        protected R eularTour(Position<E> v) {
+            TourResult<R> r = new TourResult<R>();
+
+            visitLeft(v, r);
+            if (tree.hasLeft(v)) {
+                r.left = eularTour(tree.left(v));
+            }
+            visitBelow(v, r);
+            if (tree.hasRight(v)) {
+                r.right = eularTour(tree.right(v));
+            }
+            visitRight(v, r);
+            return r.out;
+        }
+
+        protected void visitLeft(Position<E> v, TourResult<R> r) {
+        }
+
+        protected void visitBelow(Position<E> v, TourResult<R> r) {
+        }
+
+        protected void visitRight(Position<E> v, TourResult<R> r) {
+        }
+
+        
+
+    }
+
+    public static void main(String[] args)
+            throws NonEmptyTreeException, InvalidPositionException, EmptyTreeException, BoundaryViolationException {
         LinkedBinaryTree<Integer> LB = new LinkedBinaryTree<>();
 
         Position<Integer> p = LB.addRoot(1);

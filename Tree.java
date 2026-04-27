@@ -749,58 +749,169 @@ public class Tree {
         }
     }
 
-    // EulerTour...
+    // Class TourResult
 
-    public abstract class EularTour<E, R> {
+    public static class TourResult<R> {
+        public R left;
+
+        public R right;
+
+        public R out;
+    }
+
+    // Abstract class EulerTour
+
+    public static abstract class EulerTour<E, R> {
         protected BinaryTree<E> tree;
 
-        public abstract R execute(BinaryTree<E> T);
+        public abstract R execute(BinaryTree<E> T)
+                throws InvalidPositionException, BoundaryViolationException, EmptyTreeException;
 
         protected void init(BinaryTree<E> T) {
             tree = T;
         }
 
-        protected R eularTour(Position<E> v) {
+        protected R eulerTour(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
             TourResult<R> r = new TourResult<R>();
 
             visitLeft(v, r);
             if (tree.hasLeft(v)) {
-                r.left = eularTour(tree.left(v));
+                r.left = eulerTour(tree.left(v));
             }
             visitBelow(v, r);
             if (tree.hasRight(v)) {
-                r.right = eularTour(tree.right(v));
+                r.right = eulerTour(tree.right(v));
             }
             visitRight(v, r);
             return r.out;
         }
 
-        protected void visitLeft(Position<E> v, TourResult<R> r) {
+        protected void visitLeft(Position<E> v, TourResult<R> r) throws InvalidPositionException {
         }
 
-        protected void visitBelow(Position<E> v, TourResult<R> r) {
+        protected void visitBelow(Position<E> v, TourResult<R> r) throws InvalidPositionException {
         }
 
-        protected void visitRight(Position<E> v, TourResult<R> r) {
+        protected void visitRight(Position<E> v, TourResult<R> r) throws InvalidPositionException {
+        }
+    }
+
+    public static class ExpressionTerm {
+
+        public Integer getValue() {
+            return 0;
         }
 
-        
+        public String toString() {
+            return new String("");
+        }
+    }
+
+    public static class ExpressionVariable extends ExpressionTerm {
+
+        protected Integer var;
+
+        public ExpressionVariable(Integer x) {
+            var = x;
+        }
+
+        public void setVariable(Integer x) {
+            var = x;
+        }
+
+        public Integer getValue() {
+            return var;
+        }
+
+        public String toString() {
+            return var.toString();
+        }
+    }
+
+    public static class ExpressionOperator extends ExpressionTerm {
+        protected Integer firstOperand, secondOperand;
+
+        public void setOperands(Integer x, Integer y) {
+            firstOperand = x;
+            secondOperand = y;
+        }
 
     }
 
+    public static class AdditionOperator extends ExpressionOperator {
+        public Integer getValue() {
+            return (firstOperand + secondOperand);
+        }
+
+        public String toString() {
+            return new String("+");
+        }
+    }
+
+    public static class EvaluateExpressionTour extends EulerTour<ExpressionTerm, Integer> {
+        public Integer execute(BinaryTree<ExpressionTerm> T)
+                throws InvalidPositionException, BoundaryViolationException, EmptyTreeException {
+            init(T);
+            return eulerTour(tree.root());
+        }
+
+        protected void visitRight(Position<ExpressionTerm> v, TourResult<Integer> r) throws InvalidPositionException {
+            ExpressionTerm term = v.element();
+            if (tree.isInternal(v)) {
+                ExpressionOperator op = (ExpressionOperator) term;
+                op.setOperands(r.left, r.right);
+            }
+
+            r.out = term.getValue();
+        }
+
+    }
+
+    public static class PrintExpressionTour extends EulerTour<ExpressionTerm, String> {
+
+        public String execute(BinaryTree<ExpressionTerm> T)
+                throws InvalidPositionException, BoundaryViolationException, EmptyTreeException {
+            init(T);
+            System.out.print("Expression: ");
+            eulerTour(T.root());
+            System.out.println();
+            return null;
+        }
+
+        protected void visitLeft(Position<ExpressionTerm> v, TourResult<String> r) throws InvalidPositionException {
+            if (tree.isInternal(v)) {
+                System.out.print("(");
+            }
+        }
+
+        protected void visitBelow(Position<ExpressionTerm> v, TourResult<String> r) throws InvalidPositionException {
+            System.out.print(v.element());
+        }
+
+        protected void visitRight(Position<ExpressionTerm> v, TourResult<String> r) throws InvalidPositionException {
+            if (tree.isInternal(v)) {
+                System.out.print(")");
+            }
+        }
+    }
+
     public static void main(String[] args)
-            throws NonEmptyTreeException, InvalidPositionException, EmptyTreeException, BoundaryViolationException {
-        LinkedBinaryTree<Integer> LB = new LinkedBinaryTree<>();
+            throws Exception {
+        LinkedBinaryTree<ExpressionTerm> LB = new LinkedBinaryTree<>();
 
-        Position<Integer> p = LB.addRoot(1);
-        LB.insertLeft(p, 2);
-        LB.insertRight(p, 3);
-        // LB.insertLeft(firstLeft, 4);
-        // LB.insertRight(firstLeft, 5);
+        
+        Position<ExpressionTerm> root = LB.addRoot(new AdditionOperator());
 
-        // System.out.println();
-        // LB.traverse();
-        boolean ans = LB.hasRight(p);
-        System.out.println(ans);
+        LB.insertLeft(root, new ExpressionVariable(5));
+
+        LB.insertRight(root, new ExpressionVariable(6));
+
+        EvaluateExpressionTour eval = new EvaluateExpressionTour();
+        Integer result = eval.execute(LB);
+
+        System.out.println("Result: " + result);
+
+        PrintExpressionTour print = new PrintExpressionTour();
+        print.execute(LB);
     }
 }

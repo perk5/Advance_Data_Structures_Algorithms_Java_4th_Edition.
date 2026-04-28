@@ -252,8 +252,6 @@ public class Tree {
                 throws InvalidPositionException, EmptyListException, BoundaryViolationException {
             p = checkPosition(p);
 
-            p = checkPosition(p);
-
             if (p == first())
                 addFirst(element);
             else
@@ -451,7 +449,7 @@ public class Tree {
                 elements.addLast(pos.element());
             }
             return elements.iterator();
-        }
+        }   
 
         public E replace(Position<E> v, E o) throws InvalidPositionException {
             BTPosition<E> vv = checkPosition(v);

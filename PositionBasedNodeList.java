@@ -346,7 +346,7 @@ public class PositionBasedNodeList {
 
         public Iterable<Position<E>> positions()
                 throws EmptyListException, InvalidPositionException, BoundaryViolationException {
-            PositionList<Position<E>> P = new NodePositionList<Position<E>>();
+            PositionList<Position<E>> P = new NodePositionList<>();
             if (!isEmpty()) {
                 Position<E> p = first();
                 while (true) {

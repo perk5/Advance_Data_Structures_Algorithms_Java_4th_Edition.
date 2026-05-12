@@ -632,32 +632,6 @@ public class Tree {
 
         }
 
-        // Work in Progress traversal logic..
-
-        // public void traverse() throws InvalidPositionException, EmptyTreeException,
-        // BoundaryViolationException{
-        // StringBuilder s = new StringBuilder();
-        // int count = 0;
-        // Position<E> prevPosition = null;
-        // for(Position<E> p : positions()){
-        // for(int i = count; i < 3; i++){
-        // s.append(" ");
-        // }
-        // s.append(p.element());
-        // for(int i = count; i < 2; i++){
-        // s.append(" ");
-        // }
-        // if(prevPosition != null){
-        // BTPosition<E> vv = checkPosition(prevPosition);
-        // s.append(vv.getRight().element());
-        // }
-        // System.out.println(s);
-        // prevPosition = p;
-        // count++;
-        // s.setLength(0);
-        // }
-        // }
-
         public void attach(Position<E> v, BinaryTree<E> T1, BinaryTree<E> T2)
                 throws InvalidPositionException, EmptyTreeException {
             BTPosition<E> vv = checkPosition(v);

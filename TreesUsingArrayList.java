@@ -6,13 +6,17 @@ public class TreesUsingArrayList {
         E element();
     }
 
-    class ArrayPosition<E> implements Position<E> {
+    public static class ArrayPosition<E> implements Position<E> {
 
         private int index;
         private E element;
 
         ArrayPosition(int index, E element) {
             this.index = index;
+            this.element = element;
+        }
+
+        public void setElement(E element) {
             this.element = element;
         }
 
@@ -69,15 +73,24 @@ public class TreesUsingArrayList {
         }
 
         public Position<E> root() {
+            if (tree.isEmpty() || tree.get(0) == null)
+                return null;
             return tree.get(0);
         }
 
         public Position<E> parent(Position<E> p) {
             ArrayPosition<E> n = (ArrayPosition<E>) p;
             int i = n.getIndex();
+            if (i == 0)
+                return null;
             int parentIndex = (i - 1) / 2;
 
-            return tree.get(parentIndex);
+            if (parentIndex < tree.size() && tree.get(parentIndex) != null) {
+                return tree.get(parentIndex);
+            }
+
+            return null;
+
         }
 
         public Iterable<Position<E>> children(Position<E> p) {
@@ -142,9 +155,84 @@ public class TreesUsingArrayList {
 
         }
 
+        public void addRoot(E e) {
+
+            if (!tree.isEmpty()) {
+                throw new IllegalStateException("Tree already has a root..!");
+            }
+
+            ArrayPosition<E> root = new ArrayPosition<>(0, e);
+
+            tree.add(root);
+            size++;
+
+        }
+
+        public void insertLeft(Position<E> p, E e) {
+            ArrayPosition<E> n = (ArrayPosition<E>) p;
+
+            int index = n.getIndex();
+            if (tree.get(index) == null)
+                throw new IllegalStateException("Invalid parent node");
+            int leftIndex = index * 2 + 1;
+
+            while (tree.size() <= leftIndex) {
+                tree.add(null);
+            }
+
+            if (tree.get(leftIndex) != null) {
+                throw new IllegalStateException("Left child already exists");
+            }
+            ArrayPosition<E> left = new ArrayPosition<>(leftIndex, e);
+
+            tree.set(leftIndex, left);
+            size++;
+
+        }
+
+        public void insertRight(Position<E> p, E e) {
+            ArrayPosition<E> n = (ArrayPosition<E>) p;
+
+            int index = n.getIndex();
+            if (tree.get(index) == null)
+                throw new IllegalStateException("Invalid parent node");
+            int rightIndex = index * 2 + 2;
+
+            while (tree.size() <= rightIndex) {
+                tree.add(null);
+            }
+
+            if (tree.get(rightIndex) != null) {
+                throw new IllegalStateException("Right child already exists");
+            }
+            ArrayPosition<E> right = new ArrayPosition<>(rightIndex, e);
+
+            tree.set(rightIndex, right);
+            size++;
+
+        }
+
+        public void replace(Position<E> p, E e) {
+            ArrayPosition<E> arr = (ArrayPosition<E>) p;
+
+            arr.setElement(e);
+        }
+
+        public void remove(Position<E> p) {
+            ArrayPosition<E> arr = (ArrayPosition<E>) p;
+            int index = arr.getIndex();
+
+            if (hasLeft(p) || hasRight(p)) {
+                throw new IllegalStateException("Cannot remove internal node");
+            }
+
+            tree.set(index, null);
+            size--;
+        }
+
     }
 
     public static void main(String args[]) {
-
+        
     }
 }

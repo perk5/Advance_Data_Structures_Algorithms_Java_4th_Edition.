@@ -233,6 +233,15 @@ public class TreesUsingArrayList {
     }
 
     public static void main(String args[]) {
-        
+        ArrayBinaryTree<Integer> ABT = new ArrayBinaryTree<>();
+
+        ABT.addRoot(0);
+
+        ABT.insertLeft(ABT.root(), 1);
+        ABT.insertRight(ABT.root(), 2);
+
+        for (Position<Integer> p : ABT.children(ABT.root())) {
+            System.out.println(p.element());
+        }
     }
 }

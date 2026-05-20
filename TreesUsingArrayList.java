@@ -168,7 +168,7 @@ public class TreesUsingArrayList {
 
         }
 
-        public void insertLeft(Position<E> p, E e) {
+        public Position<E> insertLeft(Position<E> p, E e) {
             ArrayPosition<E> n = (ArrayPosition<E>) p;
 
             int index = n.getIndex();
@@ -187,10 +187,11 @@ public class TreesUsingArrayList {
 
             tree.set(leftIndex, left);
             size++;
+            return tree.get(leftIndex);
 
         }
 
-        public void insertRight(Position<E> p, E e) {
+        public Position<E> insertRight(Position<E> p, E e) {
             ArrayPosition<E> n = (ArrayPosition<E>) p;
 
             int index = n.getIndex();
@@ -209,6 +210,7 @@ public class TreesUsingArrayList {
 
             tree.set(rightIndex, right);
             size++;
+            return tree.get(rightIndex);
 
         }
 
@@ -230,6 +232,30 @@ public class TreesUsingArrayList {
             size--;
         }
 
+        public void preOrderDrawTree(Position<E> p, int depth) {
+
+            ArrayPosition<E> n = (ArrayPosition<E>) p;
+            int currentIndex = n.getIndex();
+            int leftIndex = currentIndex * 2 + 1;
+            int rightIndex = currentIndex * 2 + 2;
+
+            if (n.element() != null) {
+                for (int i = 0; i < depth; i++) {
+                    System.out.print(" ");
+                }
+                System.out.println(n.element());
+            }
+
+            if (leftIndex < tree.size() && tree.get(leftIndex) != null) {
+                preOrderDrawTree(tree.get(leftIndex), depth + 1);
+            }
+
+            if (rightIndex < tree.size() && tree.get(rightIndex) != null) {
+                preOrderDrawTree(tree.get(rightIndex), depth + 1);
+            }
+
+        }
+
     }
 
     public static void main(String args[]) {
@@ -237,11 +263,16 @@ public class TreesUsingArrayList {
 
         ABT.addRoot(0);
 
-        ABT.insertLeft(ABT.root(), 1);
-        ABT.insertRight(ABT.root(), 2);
+        Position<Integer> firstLeft = ABT.insertLeft(ABT.root(), 1);
+        Position<Integer> firstRight =ABT.insertRight(ABT.root(), 2);
 
-        for (Position<Integer> p : ABT.children(ABT.root())) {
-            System.out.println(p.element());
-        }
+        ABT.insertLeft(firstLeft, 4);
+        ABT.insertRight(firstLeft, 5);
+        ABT.insertLeft(firstRight, 6);
+        ABT.insertRight(firstRight, 7);
+
+       
+
+        ABT.preOrderDrawTree(ABT.root(), 0);
     }
 }

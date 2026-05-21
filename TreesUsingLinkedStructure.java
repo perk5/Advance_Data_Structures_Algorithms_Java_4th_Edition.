@@ -69,6 +69,28 @@ public class TreesUsingLinkedStructure {
             return root;
         }
 
+        public Position<E> addRoot(E e) {
+
+            if (root != null) {
+                throw new IllegalStateException("Tree already has root");
+            }
+
+            root = new DNode<>(null, e);
+            size++;
+            return root;
+
+        }
+
+        public Position<E> addChild(Position<E> p, E e) {
+            DNode<E> parent = (DNode<E>) p;
+            DNode<E> child = new DNode<E>(parent, e);
+
+            parent.children.add(child);
+            size++;
+            return child;
+
+        }
+
         public Position<E> parent(Position<E> p) {
             DNode<E> node = (DNode<E>) p;
 
@@ -150,9 +172,29 @@ public class TreesUsingLinkedStructure {
             return old;
         }
 
+        public void preOrderDrawTree(Position<E> p, int depth) {
+            DNode<E> iterate = (DNode<E>) p;
+
+            for (int i = 0; i < depth; i++) {
+                System.out.print(" ");
+            }
+            System.out.println(iterate.element);
+            for (DNode<E> c : iterate.children) {
+                preOrderDrawTree(c, depth + 1);
+            }
+
+        }
+
     }
 
     public static void main(String args[]) {
+        TreeLinkedList<String> generalTree = new TreeLinkedList<>();
+        Position<String> firstChild = generalTree.addRoot("Mike");
+        Position<String> firstFirstChild = generalTree.addChild(firstChild, "Mary");
+        generalTree.addChild(firstFirstChild, "Spidy");
+        generalTree.addChild(firstFirstChild, "Goblin");
+        generalTree.addChild(firstChild, "Jane");
+        generalTree.preOrderDrawTree(firstChild, 0);
 
     }
 

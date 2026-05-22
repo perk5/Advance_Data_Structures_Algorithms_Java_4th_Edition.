@@ -9,6 +9,7 @@ public class SlicingFloorPlan {
         char type;
 
         public DNode(int width, int height, char type) {
+
             this.height = height;
             this.width = width;
             this.type = type;
@@ -16,7 +17,7 @@ public class SlicingFloorPlan {
 
     }
 
-    public interface trees {
+    public interface Tree {
         int size();
 
         boolean isEmpty();
@@ -29,7 +30,7 @@ public class SlicingFloorPlan {
 
     }
 
-    public interface BTree extends trees {
+    public interface BTree extends Tree {
         DNode left(DNode p);
 
         DNode right(DNode p);
@@ -46,7 +47,9 @@ public class SlicingFloorPlan {
         private DNode root;
 
         public SlicingFP(int initialWidth, int initialHeight) {
-            this.root = new DNode(initialHeight, initialWidth, 'L');
+            if (initialWidth < 0 || initialHeight < 0)
+                throw new IllegalArgumentException("Dimensions must be non-negative");
+            this.root = new DNode(initialWidth, initialHeight, 'L');
             this.size = 1;
         }
 
@@ -91,7 +94,7 @@ public class SlicingFloorPlan {
         public void splitVertical(DNode p) {
 
             if (!isExternal(p))
-                throw new IllegalArgumentException("can only decompose a basic rectengle(leaf node)!");
+                throw new IllegalArgumentException("can only decompose a basic rectangle(leaf node)!");
 
             p.type = 'V';
 
@@ -118,19 +121,21 @@ public class SlicingFloorPlan {
         }
 
         // Assign minimum height and width to a basic rectangle.
-        public void assignDimensions(DNode v, int width, int height) {
-            if (!isExternal(v)) {
-                throw new IllegalArgumentException("Can only assign dimensions to basic rectangles (leaves)!");
-            }
+        public void setDimensions(DNode v, int width, int height) {
+            // if (!isExternal(v)) {
+            // throw new IllegalArgumentException("Can only assign dimensions to basic
+            // rectangles (leaves)!");
+            // }
+            if (width < 0 || height < 0)
+                throw new IllegalArgumentException("Dimensions must be non-negative");
             v.width = width;
             v.height = height;
         }
 
         // Draw the slicing tree associated with the floorplan.
-
         public void drawSlicingFP(DNode n, int depth) {
 
-            if(n == null){
+            if (n == null) {
                 return;
             }
 
@@ -153,9 +158,63 @@ public class SlicingFloorPlan {
 
         }
 
+        // Draw Compact SlicingFloorPlan..
+        public void drawCompactSlicingFP(DNode n, int depth) {
+
+            if (n == null) {
+                return;
+            }
+
+            drawCompactSlicingFP(n.left, depth + 1);
+            drawCompactSlicingFP(n.right, depth + 1);
+
+            for (int i = 0; i < depth; i++) {
+                System.out.print(" ");
+            }
+            if (n.type == 'V') {
+                if (n.left == null || n.right == null) {
+                    throw new IllegalArgumentException("V Doesn't have childrens..");
+                }
+                int width = n.left.width + n.right.width;
+                int height = Math.max(n.left.height, n.right.height);
+                System.out.println("Cut Node 'V' (|) Bounding:" + width + "*" + height);
+                setDimensions(n, width, height);
+            }
+            if (n.type == 'H') {
+                if (n.left == null || n.right == null) {
+                    throw new IllegalArgumentException("H Doesn't have children..");
+                }
+                int width = Math.max(n.left.width, n.right.width);
+                int height = n.left.height + n.right.height;
+                System.out.println("Cut Node 'H' (-) Bounding:" + width + "*" + height);
+                setDimensions(n, width, height);
+            }
+            if (n.type == 'L') {
+                System.out.println("[Leaf Box] Target Size: " + n.width + "*" + n.height);
+            }
+
+        }
+
     }
 
     public static void main(String args[]) {
-        SlicingFP SFP = new SlicingFP(20, 40);
+        SlicingFP sfp = new SlicingFP(0, 0);
+        sfp.splitHorizontal(sfp.root());
+        sfp.splitVertical(sfp.root.left);
+        sfp.splitVertical(sfp.root.right);
+        sfp.splitHorizontal(sfp.root.left.right);
+        sfp.splitVertical(sfp.root.left.right.right);
+        sfp.setDimensions(sfp.root.left.left, 5, 25);
+
+        sfp.setDimensions(sfp.root.left.right.left, 15, 10);
+
+        sfp.setDimensions(sfp.root.left.right.right.left, 5, 15);
+        sfp.setDimensions(sfp.root.left.right.right.right, 10, 15);
+        sfp.setDimensions(sfp.root.right.left, 5, 15);
+        sfp.setDimensions(sfp.root.right.right, 15, 15);
+
+        sfp.drawCompactSlicingFP(sfp.root, 0);
+        System.out.println("");
+        sfp.drawSlicingFP(sfp.root, 0);
     }
 }

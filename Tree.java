@@ -449,7 +449,7 @@ public class Tree {
                 elements.addLast(pos.element());
             }
             return elements.iterator();
-        }   
+        }
 
         public E replace(Position<E> v, E o) throws InvalidPositionException {
             BTPosition<E> vv = checkPosition(v);
@@ -770,7 +770,7 @@ public class Tree {
 
     public static class ExpressionTerm {
 
-        public Integer getValue() {
+        public Number getValue() {
             return 0;
         }
 
@@ -781,17 +781,17 @@ public class Tree {
 
     public static class ExpressionVariable extends ExpressionTerm {
 
-        protected Integer var;
+        protected Number var;
 
-        public ExpressionVariable(Integer x) {
+        public ExpressionVariable(Number x) {
             var = x;
         }
 
-        public void setVariable(Integer x) {
+        public void setVariable(Number x) {
             var = x;
         }
 
-        public Integer getValue() {
+        public Number getValue() {
             return var;
         }
 
@@ -801,33 +801,53 @@ public class Tree {
     }
 
     public static class ExpressionOperator extends ExpressionTerm {
-        protected Integer firstOperand, secondOperand;
+        protected Number firstOperand, secondOperand;
 
-        public void setOperands(Integer x, Integer y) {
+        public void setOperands(Number x, Number y) {
             firstOperand = x;
             secondOperand = y;
         }
 
     }
 
-    public static class AdditionOperator extends ExpressionOperator {
-        public Integer getValue() {
-            return (firstOperand + secondOperand);
+    public static class Operator extends ExpressionOperator {
+
+        String operator;
+
+        public Operator(String op) {
+            operator = op;
+        }
+
+        public Number getValue() {
+
+            if(operator.equals("+")){
+                return (firstOperand.doubleValue() + secondOperand.doubleValue());
+            }
+
+            if(operator.equals("-")){
+                return (firstOperand.doubleValue() - secondOperand.doubleValue());
+            }
+
+            if(operator.equals("*")){
+                return (firstOperand.doubleValue() * secondOperand.doubleValue());
+            }
+            return (firstOperand.doubleValue() / secondOperand.doubleValue());
+            
         }
 
         public String toString() {
-            return new String("+");
+            return new String(operator);
         }
     }
 
-    public static class EvaluateExpressionTour extends EulerTour<ExpressionTerm, Integer> {
-        public Integer execute(BinaryTree<ExpressionTerm> T)
+    public static class EvaluateExpressionTour extends EulerTour<ExpressionTerm, Number> {
+        public Number execute(BinaryTree<ExpressionTerm> T)
                 throws InvalidPositionException, BoundaryViolationException, EmptyTreeException {
             init(T);
             return eulerTour(tree.root());
         }
 
-        protected void visitRight(Position<ExpressionTerm> v, TourResult<Integer> r) throws InvalidPositionException {
+        protected void visitRight(Position<ExpressionTerm> v, TourResult<Number> r) throws InvalidPositionException {
             ExpressionTerm term = v.element();
             if (tree.isInternal(v)) {
                 ExpressionOperator op = (ExpressionOperator) term;
@@ -871,15 +891,14 @@ public class Tree {
             throws Exception {
         LinkedBinaryTree<ExpressionTerm> LB = new LinkedBinaryTree<>();
 
-        
-        Position<ExpressionTerm> root = LB.addRoot(new AdditionOperator());
+        Position<ExpressionTerm> root = LB.addRoot(new Operator("+"));
 
-        LB.insertLeft(root, new ExpressionVariable(5));
+        LB.insertLeft(root, new ExpressionVariable(15));
 
-        LB.insertRight(root, new ExpressionVariable(6));
+        LB.insertRight(root, new ExpressionVariable(15));
 
         EvaluateExpressionTour eval = new EvaluateExpressionTour();
-        Integer result = eval.execute(LB);
+        Number result = eval.execute(LB);
 
         System.out.println("Result: " + result);
 

@@ -155,17 +155,17 @@ public class PriorityQueue {
         }
 
         public Position<E> first() throws EmptyListException {
-            if (header == null) {
-                return null;
+            if (isEmpty()) {
+                throw new EmptyListException("List is Empty.");
             }
-            return header;
+            return header.getNext();
         }
 
         public Position<E> last() throws EmptyListException {
-            if (trailer == null) {
-                return null;
+            if (isEmpty()) {
+                throw new EmptyListException("List is Empty.");
             }
-            return trailer;
+            return trailer.getPrev();
         }
 
         public Position<E> next(Position<E> p) throws InvalidPositionException, BoundaryViolationException {
@@ -325,7 +325,7 @@ public class PriorityQueue {
 
     }
 
-    public class SortedListPriorityQueue<K, V> implements IPriorityQueue<K, V> {
+    public static class SortedListPriorityQueue<K, V> implements IPriorityQueue<K, V> {
 
         protected PositionList<Entry<K, V>> entries;
         protected Comparator<K> c;
@@ -355,7 +355,7 @@ public class PriorityQueue {
             }
         }
 
-        protected class MyEntry<E, V> implements Entry<E, V> {
+        protected static class MyEntry<E, V> implements Entry<E, V> {
 
             private E key;
             private V value;
@@ -418,16 +418,33 @@ public class PriorityQueue {
             }
         }
 
-        public Entry<K, V> removeMin() throws EmptyPriorityQueueException, InvalidPositionException, EmptyListException {
-            if(entries.isEmpty()){
+        public Entry<K, V> removeMin()
+                throws EmptyPriorityQueueException, InvalidPositionException, EmptyListException {
+            if (entries.isEmpty()) {
                 throw new EmptyPriorityQueueException("Priority Queue is Empty.");
-            } else{
+            } else {
                 return entries.remove(entries.first());
+            }
+        }
+
+        public void traverseSortedList(){
+            for(Entry<K, V> e: entries){
+                System.out.println(e.getValue() + " " + e.getKey());
             }
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[])
+            throws EmptyPriorityQueueException, InvalidKeyException, EmptyListException, InvalidPositionException, BoundaryViolationException {
+        SortedListPriorityQueue<Integer, String> SPQ = new SortedListPriorityQueue<>();
+
+        SPQ.insert(2, "Prerak");
+        SPQ.insert(9, "John");
+        SPQ.insert(1, "Mausam");
+        SPQ.traverseSortedList();
+        SPQ.removeMin();
+        System.out.println();
+        SPQ.traverseSortedList();
 
     }
 }

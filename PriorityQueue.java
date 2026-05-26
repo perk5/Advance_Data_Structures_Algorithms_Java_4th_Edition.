@@ -427,24 +427,227 @@ public class PriorityQueue {
             }
         }
 
-        public void traverseSortedList(){
-            for(Entry<K, V> e: entries){
+        public void traverseSortedList() {
+            for (Entry<K, V> e : entries) {
                 System.out.println(e.getValue() + " " + e.getKey());
             }
         }
     }
 
-    public static void main(String args[])
-            throws EmptyPriorityQueueException, InvalidKeyException, EmptyListException, InvalidPositionException, BoundaryViolationException {
-        SortedListPriorityQueue<Integer, String> SPQ = new SortedListPriorityQueue<>();
+    // Java Implementation of complete BinaryTree (Heaps --> ArrayList)
 
-        SPQ.insert(2, "Prerak");
-        SPQ.insert(9, "John");
-        SPQ.insert(1, "Mausam");
-        SPQ.traverseSortedList();
-        SPQ.removeMin();
-        System.out.println();
-        SPQ.traverseSortedList();
+    // Interface Trees
+
+    public interface Trees<E> {
+
+        public int size();
+
+        public boolean isEmpty();
+
+        public Iterator<E> iterator()
+                throws InvalidPositionException, EmptyTreeException, BoundaryViolationException;
+
+        // public Iterable<Position<E>> positions()
+        // throws InvalidPositionException, EmptyTreeException,
+        // BoundaryViolationException;
+
+        public E replace(Position<E> v, E e) throws InvalidPositionException;
+
+        public Position<E> root() throws EmptyTreeException;
+
+        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        // public Iterable<Position<E>> children(Position<E> v)
+        // throws InvalidPositionException, BoundaryViolationException;
+
+        public boolean isInternal(Position<E> v) throws InvalidPositionException;
+
+        public boolean isExternal(Position<E> v) throws InvalidPositionException;
+
+        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException;
+    }
+
+    // Interface BinaryTree
+
+    public interface BinaryTree<E> extends Trees<E> {
+        public Position<E> left(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        public Position<E> right(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+
+        public boolean hasLeft(Position<E> v) throws InvalidPositionException;
+
+        public boolean hasRight(Position<E> v) throws InvalidPositionException;
+    }
+
+    // CompleteBinaryTree Interface
+
+    public interface CompleteBinaryTree<E> extends BinaryTree<E> {
+        public Position<E> add(E elem);
+
+        public E remove() throws EmptyTreeException;
+    }
+
+    public static class ArrayListCompleteBinaryTree<E> implements CompleteBinaryTree<E> {
+        protected ArrayList<BTPos<E>> T;
+
+        protected static class BTPos<E> implements Position<E> {
+            E element;
+            int index;
+
+            public BTPos(E element, int index) {
+                this.element = element;
+                this.index = index;
+            }
+
+            public E element() {
+                return element;
+            }
+
+            public int index() {
+                return index;
+            }
+
+            public E setElement(E elt) {
+                E temp = element;
+                element = elt;
+                return temp;
+            }
+        }
+
+        public ArrayListCompleteBinaryTree() {
+            T = new ArrayList<BTPos<E>>();
+
+            T.add(0, null);
+        }
+
+        public int size() {
+            return T.size() - 1;
+        }
+
+        public boolean isEmpty() {
+            return T.size() == 0;
+        }
+
+        public boolean isInternal(Position<E> v) throws InvalidPositionException {
+            return hasLeft(v);
+        }
+
+        public boolean isExternal(Position<E> v) throws InvalidPositionException {
+            return !isInternal(v);
+        }
+
+        protected BTPos<E> checkPosition(Position<E> v) throws InvalidPositionException {
+            if (v == null || !(v instanceof BTPos)) {
+                throw new InvalidPositionException("Position is invalid");
+            }
+            return (BTPos<E>) v;
+        }
+
+        public boolean isRoot(Position<E> v) throws InvalidPositionException {
+            BTPos<E> vv = checkPosition(v);
+
+            return vv.index == 1;
+        }
+
+        public Position<E> root() throws EmptyTreeException {
+            if (isEmpty()) {
+                throw new EmptyTreeException("The Tree is Empty..");
+            }
+            return T.get(1);
+        }
+
+        public Position<E> left(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+            if (!hasLeft(v)) {
+                throw new BoundaryViolationException("No Left Child");
+            }
+            BTPos<E> vv = checkPosition(v);
+            return T.get(2 * vv.index());
+        }
+
+        public Position<E> right(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+            if (!hasRight(v)) {
+                throw new BoundaryViolationException("No Right Child");
+            }
+            BTPos<E> vv = checkPosition(v);
+            return T.get(2 * vv.index() + 1);
+        }
+
+        public boolean hasLeft(Position<E> v) throws InvalidPositionException {
+            BTPos<E> vv = checkPosition(v);
+            return 2 * vv.index() <= size();
+        }
+
+        public boolean hasRight(Position<E> v) throws InvalidPositionException {
+            BTPos<E> vv = checkPosition(v);
+            return 2 * vv.index() + 1 <= size();
+        }
+
+        public E replace(Position<E> v, E e) throws InvalidPositionException {
+            BTPos<E> vv = checkPosition(v);
+            return vv.setElement(e);
+        }
+
+        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+            if (isRoot(v)) {
+                throw new BoundaryViolationException("No Parent");
+            }
+            BTPos<E> vv = checkPosition(v);
+            return T.get(vv.index / 2);
+        }
+
+        public Position<E> add(E elem) {
+            int i = size() + 1;
+            BTPos<E> p = new BTPos<E>(elem, i);
+            T.add(i, p);
+            return p;
+        }
+
+        public E remove() throws EmptyTreeException {
+            if (isEmpty()) {
+                throw new EmptyTreeException("The Tree is Empty..");
+            }
+            return T.remove(size()).element();
+        }
+
+        public Iterator<E> iterator()
+                throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
+            ArrayList<E> list = new ArrayList<>();
+
+            for (int i = 1; i < T.size(); i++) {
+                if (T.get(i) != null)
+                    list.add(T.get(i).element());
+            }
+            return list.iterator();
+        }
+
+        public void traverse() {
+            for (int i = 1; i < T.size(); i++) {
+                System.out.println(T.get(i).index() + " " + T.get(i).element());
+            }
+        }
+
+    }
+
+    public static void main(String args[])
+            throws EmptyPriorityQueueException, InvalidKeyException, EmptyListException, InvalidPositionException,
+            BoundaryViolationException {
+        // SortedListPriorityQueue<Integer, String> SPQ = new
+        // SortedListPriorityQueue<>();
+
+        // SPQ.insert(2, "Prerak");
+        // SPQ.insert(9, "John");
+        // SPQ.insert(1, "Mausam");
+        // SPQ.traverseSortedList();
+        // SPQ.removeMin();
+        // System.out.println();
+        // SPQ.traverseSortedList();
+
+        ArrayListCompleteBinaryTree<String> BT = new ArrayListCompleteBinaryTree<>();
+        BT.add("Prerak");
+        BT.add("Mausam");
+        BT.add("Dishant");
+
+        BT.traverse();
 
     }
 }

@@ -525,7 +525,7 @@ public class PriorityQueue {
         }
 
         public boolean isEmpty() {
-            return T.size() == 0;
+            return (size() == 0);
         }
 
         public boolean isInternal(Position<E> v) throws InvalidPositionException {
@@ -596,9 +596,9 @@ public class PriorityQueue {
         }
 
         public Position<E> add(E elem) {
-            int i = size() + 1;
+            int i = T.size();
             BTPos<E> p = new BTPos<E>(elem, i);
-            T.add(i, p);
+            T.add(p);
             return p;
         }
 
@@ -622,6 +622,9 @@ public class PriorityQueue {
 
         public void traverse() {
             for (int i = 1; i < T.size(); i++) {
+                if (T.get(i) == null) {
+                    continue;
+                }
                 System.out.println(T.get(i).index() + " " + T.get(i).element());
             }
         }

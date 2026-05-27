@@ -316,14 +316,19 @@ public class PriorityQueue {
 
         public boolean isEmpty();
 
-        public Entry<K, V> min() throws EmptyPriorityQueueException, EmptyListException;
+        public Entry<K, V> min() throws EmptyPriorityQueueException, EmptyListException, EmptyTreeException;
 
         public Entry<K, V> insert(K key, V value)
-                throws InvalidKeyException, EmptyListException, InvalidPositionException, BoundaryViolationException;
+                throws InvalidKeyException, EmptyTreeException, EmptyListException, InvalidPositionException,
+                BoundaryViolationException;
 
-        public Entry<K, V> removeMin() throws EmptyPriorityQueueException, InvalidPositionException, EmptyListException;
+        public Entry<K, V> removeMin()
+                throws BoundaryViolationException, EmptyPriorityQueueException, EmptyTreeException,
+                InvalidPositionException, EmptyListException;
 
     }
+
+    // SortingList PriorityQueue......
 
     public static class SortedListPriorityQueue<K, V> implements IPriorityQueue<K, V> {
 
@@ -631,26 +636,182 @@ public class PriorityQueue {
 
     }
 
+    // Java Heap Implementation BubbleUp and BubbleDown Technique
+
+    public static class HeapPriorityQueue<E, V> implements IPriorityQueue<E, V> {
+        protected CompleteBinaryTree<Entry<E, V>> heap;
+        protected Comparator<E> comp;
+
+        protected static class MyEntry<E, V> implements Entry<E, V> {
+
+            private E key;
+            private V value;
+
+            MyEntry(E key, V value) {
+                this.key = key;
+                this.value = value;
+            }
+
+            public E getKey() {
+                return key;
+            }
+
+            public V getValue() {
+                return value;
+            }
+
+            public String toString() {
+                return "(" + key + "," + value + ")";
+            }
+        }
+
+        public HeapPriorityQueue() {
+            heap = new ArrayListCompleteBinaryTree<Entry<E, V>>();
+            comp = new DefaultComparator<E>();
+        }
+
+        public class DefaultComparator<E> implements Comparator<E> {
+            public int compare(E a, E b) throws ClassCastException {
+                return ((Comparable<E>) a).compareTo(b);
+            }
+        }
+
+        public HeapPriorityQueue(Comparator<E> c) {
+            heap = new ArrayListCompleteBinaryTree<>();
+            comp = c;
+        }
+
+        public int size() {
+            return heap.size();
+        }
+
+        public boolean isEmpty() {
+            return heap.size() == 0;
+        }
+
+        public Entry<E, V> min() throws EmptyPriorityQueueException, EmptyTreeException {
+            if (isEmpty()) {
+                throw new EmptyPriorityQueueException("Priority Queue is Empty");
+            } else {
+                return heap.root().element();
+            }
+        }
+
+        public void checkKey(E key) throws InvalidKeyException {
+            try {
+                comp.compare(key, key);
+            } catch (ClassCastException | NullPointerException e) {
+                throw new InvalidKeyException("Key cannot be compared");
+            }
+        }
+
+        protected void upHeap(Position<Entry<E, V>> v)
+                throws EmptyTreeException, InvalidPositionException, BoundaryViolationException {
+            Position<Entry<E, V>> u;
+            while (!heap.isRoot(v)) {
+                u = heap.parent(v);
+                if (comp.compare(u.element().getKey(), v.element().getKey()) <= 0) {
+                    break;
+                }
+                swap(u, v);
+                v = u;
+            }
+        }
+
+        public Entry<E, V> insert(E key, V value) throws InvalidKeyException, EmptyListException,
+                InvalidPositionException, BoundaryViolationException, EmptyTreeException {
+            checkKey(key);
+            Entry<E, V> entry = new MyEntry<E, V>(key, value);
+            upHeap(heap.add(entry));
+            return entry;
+        }
+
+        public void downHeap(Position<Entry<E, V>> r) throws InvalidPositionException, BoundaryViolationException {
+            while (heap.isInternal(r)) {
+                Position<Entry<E, V>> s;
+                if (!heap.hasRight(r)) {
+                    s = heap.left(r);
+                } else if (comp.compare(heap.left(r).element().getKey(), heap.right(r).element().getKey()) <= 0) {
+                    s = heap.left(r);
+                } else {
+                    s = heap.right(r);
+                }
+
+                if (comp.compare(s.element().getKey(), r.element().getKey()) < 0) {
+                    swap(r, s);
+                    r = s;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        protected void swap(Position<Entry<E, V>> x, Position<Entry<E, V>> y) throws InvalidPositionException {
+            Entry<E, V> temp = x.element();
+            heap.replace(x, y.element());
+            heap.replace(y, temp);
+
+        }
+
+        public Entry<E, V> removeMin()
+                throws EmptyPriorityQueueException, EmptyTreeException, InvalidPositionException,
+                BoundaryViolationException {
+            if (isEmpty()) {
+                throw new EmptyPriorityQueueException("Priority queue is Empty");
+            }
+            Entry<E, V> min = heap.root().element();
+            if (size() == 1) {
+                heap.remove();
+            } else {
+                heap.replace(heap.root(), heap.remove());
+                downHeap(heap.root());
+            }
+            return min;
+        }
+
+        public String toString() {
+            return heap.toString();
+        }
+
+        public void traverse() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
+            Iterator<Entry<E, V>> i = heap.iterator();
+            while (i.hasNext()) {
+                Entry<E, V> e = i.next();
+                System.out.println(e.getKey() + " " + e.getValue());
+            }
+        }
+
+    }
+
     public static void main(String args[])
-            throws EmptyPriorityQueueException, InvalidKeyException, EmptyListException, InvalidPositionException,
+            throws EmptyPriorityQueueException, InvalidKeyException, EmptyTreeException, EmptyListException,
+            InvalidPositionException,
             BoundaryViolationException {
         // SortedListPriorityQueue<Integer, String> SPQ = new
         // SortedListPriorityQueue<>();
 
-        // SPQ.insert(2, "Prerak");
-        // SPQ.insert(9, "John");
-        // SPQ.insert(1, "Mausam");
+        // SPQ.insert(2, "John");
+        // SPQ.insert(9, "Rohan");
+        // SPQ.insert(1, "Aaron");
         // SPQ.traverseSortedList();
         // SPQ.removeMin();
         // System.out.println();
         // SPQ.traverseSortedList();
 
-        ArrayListCompleteBinaryTree<String> BT = new ArrayListCompleteBinaryTree<>();
-        BT.add("Prerak");
-        BT.add("Mausam");
-        BT.add("Dishant");
+        // Heaps Using ArrayList....
+        // ArrayListCompleteBinaryTree<String> BT = new ArrayListCompleteBinaryTree<>();
+        // BT.add("John");
+        // BT.add("Rohan");
+        // BT.add("Aaron");
+        // BT.traverse();
 
-        BT.traverse();
+        // Heaps Using BubbleUp and BubbleDown approach...
+        HeapPriorityQueue<Integer, String> HPQ = new HeapPriorityQueue<>();
+        HPQ.insert(5, "Jack");
+        HPQ.insert(10, "James");
+        HPQ.insert(1, "John");
+        HPQ.insert(2, "Cena");
+        HPQ.traverse();
 
     }
 }

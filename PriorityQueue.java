@@ -492,6 +492,8 @@ public class PriorityQueue {
         public E remove() throws EmptyTreeException;
     }
 
+    // ArrayListCompleteBinaryTree class
+
     public static class ArrayListCompleteBinaryTree<E> implements CompleteBinaryTree<E> {
         protected ArrayList<BTPos<E>> T;
 

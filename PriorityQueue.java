@@ -8,6 +8,12 @@ public class PriorityQueue {
         }
     }
 
+    public static class InvalidEntryException extends Exception {
+        public InvalidEntryException(String message) {
+            super(message);
+        }
+    }
+
     public static class InvalidKeyException extends Exception {
         public InvalidKeyException(String message) {
             super(message);
@@ -328,6 +334,109 @@ public class PriorityQueue {
 
     }
 
+    public interface AdaptablePriorityQueue<K, V> {
+        Entry<K, V> remove(Entry<K, V> e) throws InvalidEntryException, InvalidPositionException;
+
+        K replaceKey(Entry<K, V> e, K key) throws InvalidEntryException, InvalidKeyException, EmptyListException,
+                InvalidPositionException, BoundaryViolationException;
+
+        V replaceValue(Entry<K, V> e, V value) throws InvalidEntryException;
+    }
+
+    // SortedList Adaptable Priority Queue.
+
+    public class SortedListAdaptablePriorityQueue<K, V> extends SortedListPriorityQueue<K, V>
+            implements AdaptablePriorityQueue<K, V> {
+
+        public SortedListAdaptablePriorityQueue() {
+            super();
+        }
+
+        public SortedListAdaptablePriorityQueue(Comparator<K> comp) {
+            super(comp);
+        }
+
+        public Entry<K, V> insert(K k, V v)
+                throws InvalidKeyException, EmptyListException, InvalidPositionException, BoundaryViolationException {
+            checkKey(k);
+            LocationAwareEntry<K, V> entry = new LocationAwareEntry<>(k, v);
+            insertEntry(entry);
+            entry.setLocation(actionPos);
+            return entry;
+        }
+
+        public Entry<K, V> remove(Entry<K, V> entry) throws InvalidEntryException, InvalidPositionException {
+            checkEntry(entry);
+            LocationAwareEntry<K, V> e = (LocationAwareEntry<K, V>) entry;
+            Position<Entry<K, V>> p = e.location();
+            entries.remove(p);
+            e.setLocation(null);
+            return e;
+        }
+
+        public K replaceKey(Entry<K, V> entry, K k) throws InvalidEntryException, InvalidKeyException,
+                EmptyListException, InvalidPositionException, BoundaryViolationException {
+            checkKey(k);
+            checkEntry(entry);
+            LocationAwareEntry<K, V> e = (LocationAwareEntry<K, V>) entry;
+            K oldKey = e.setKey(k);
+            insertEntry(e);
+            e.setLocation(actionPos);
+            return oldKey;
+        }
+
+        public V replaceValue(Entry<K, V> e, V value) throws InvalidEntryException {
+            checkEntry(e);
+            V oldValue = ((LocationAwareEntry<K, V>) e).setValue(value);
+            return oldValue;
+        }
+
+        protected void checkEntry(Entry<K, V> ent) throws InvalidEntryException {
+            if (ent == null || !(ent instanceof LocationAwareEntry)) {
+                throw new InvalidEntryException("invalid entry");
+            }
+        }
+
+        protected static class LocationAwareEntry<K, V> extends MyEntry<K, V> implements Entry<K, V> {
+            private Position<Entry<K, V>> loc;
+            K k;
+            V v;
+
+            public LocationAwareEntry(K key, V value) {
+                super(key, value);
+            }
+
+            public LocationAwareEntry(K key, V value, Position<Entry<K, V>> pos) {
+                super(key, value);
+                loc = pos;
+            }
+
+            protected Position<Entry<K, V>> location() {
+                return loc;
+            }
+
+            protected Position<Entry<K, V>> setLocation(Position<Entry<K, V>> pos) {
+                Position<Entry<K, V>> oldPosition = location();
+                loc = pos;
+                return oldPosition;
+            }
+
+            protected K setKey(K key) {
+                K oldKey = getKey();
+                k = key;
+                return oldKey;
+            }
+
+            protected V setValue(V value) {
+                V oldValue = getValue();
+                v = value;
+                return oldValue;
+            }
+
+        }
+
+    }
+
     // SortingList PriorityQueue......
 
     public static class SortedListPriorityQueue<K, V> implements IPriorityQueue<K, V> {
@@ -352,7 +461,7 @@ public class PriorityQueue {
             }
         }
 
-        private void checkKey(K k) throws InvalidKeyException {
+        protected void checkKey(K k) throws InvalidKeyException {
             try {
                 c.compare(k, k);
             } catch (ClassCastException | NullPointerException e) {

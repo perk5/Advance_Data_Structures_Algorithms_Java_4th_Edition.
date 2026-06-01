@@ -2,6 +2,8 @@ import java.util.*;
 
 public class PriorityQueue {
 
+    // Exceptions
+
     public static class EmptyPriorityQueueException extends Exception {
         public EmptyPriorityQueueException(String message) {
             super(message);
@@ -19,8 +21,6 @@ public class PriorityQueue {
             super(message);
         }
     }
-
-    // Exceptions
 
     public static class EmptyTreeException extends Exception {
         public EmptyTreeException(String message) {
@@ -46,89 +46,95 @@ public class PriorityQueue {
         }
     }
 
-    public interface Position<E> {
-        E element();
+    // Interface Position
+
+    public interface Position<K> {
+        K element();
     }
 
-    public interface PositionList<E> extends Iterable<E> {
-        public Iterator<E> iterator();
+    // Interface PositionList
+
+    public interface PositionList<K> extends Iterable<K> {
+        public Iterator<K> iterator();
 
         public int size();
 
         public boolean isEmpty();
 
-        public Position<E> first() throws EmptyListException;
+        public Position<K> first() throws EmptyListException;
 
-        public Position<E> last() throws EmptyListException;
+        public Position<K> last() throws EmptyListException;
 
-        public Position<E> next(Position<E> P) throws InvalidPositionException, BoundaryViolationException;
+        public Position<K> next(Position<K> P) throws InvalidPositionException, BoundaryViolationException;
 
-        public Position<E> prev(Position<E> p) throws InvalidPositionException, BoundaryViolationException;
+        public Position<K> prev(Position<K> p) throws InvalidPositionException, BoundaryViolationException;
 
-        public void addFirst(E e);
+        public void addFirst(K e);
 
-        public void addLast(E e);
+        public void addLast(K e);
 
-        public void addAfter(Position<E> p, E e) throws InvalidPositionException;
+        public void addAfter(Position<K> p, K e) throws InvalidPositionException;
 
-        public void addBefore(Position<E> p, E e)
+        public void addBefore(Position<K> p, K e)
                 throws InvalidPositionException, EmptyListException, BoundaryViolationException;
 
-        public E remove(Position<E> p) throws InvalidPositionException;
+        public K remove(Position<K> p) throws InvalidPositionException;
 
-        public E set(Position<E> p, E e) throws InvalidPositionException;
+        public K set(Position<K> p, K e) throws InvalidPositionException;
 
-        public Iterable<Position<E>> positions()
+        public Iterable<Position<K>> positions()
                 throws EmptyListException, InvalidPositionException, BoundaryViolationException;
     }
 
-    public static class DNode<E> implements Position<E> {
-        DNode<E> next, prev;
-        E element;
+    // Class DNode
 
-        public DNode(E element, DNode<E> next, DNode<E> prev) {
+    public static class DNode<K> implements Position<K> {
+        DNode<K> next, prev;
+        K element;
+
+        public DNode(K element, DNode<K> next, DNode<K> prev) {
             this.element = element;
             this.next = next;
             this.prev = prev;
         }
 
-        public E element() {
+        public K element() {
             return element;
         }
 
-        public DNode<E> getPrev() {
+        public DNode<K> getPrev() {
             return prev;
         }
 
-        public DNode<E> getNext() {
+        public DNode<K> getNext() {
             return next;
         }
 
-        public void setNext(DNode<E> newNode) {
+        public void setNext(DNode<K> newNode) {
             this.next = newNode;
         }
 
-        public void setPrev(DNode<E> newNode) {
+        public void setPrev(DNode<K> newNode) {
             this.prev = newNode;
         }
 
-        public void setElement(E e) {
+        public void setElement(K e) {
             this.element = e;
         }
 
     }
 
-    public static class NodePositionList<E> implements PositionList<E> {
-        DNode<E> header, trailer;
+    public static class NodePositionList<K> implements PositionList<K> {
+        DNode<K> header, trailer;
         int size;
 
         public NodePositionList() {
-            this.header = new DNode<E>(null, null, null);
-            this.trailer = new DNode<E>(null, null, header);
+            this.header = new DNode<K>(null, null, null);
+            this.trailer = new DNode<K>(null, null, header);
             header.next = trailer;
         }
 
-        protected DNode<E> checkPosition(Position<E> p) throws InvalidPositionException {
+        protected DNode<K> checkPosition(Position<K> p) throws InvalidPositionException {
             if (p == null) {
                 throw new InvalidPositionException("Null position passed to NodeList");
             }
@@ -140,7 +146,7 @@ public class PriorityQueue {
             }
 
             try {
-                DNode<E> temp = (DNode<E>) p;
+                DNode<K> temp = (DNode<K>) p;
                 if ((temp.getPrev() == null) || (temp.getNext() == null)) {
                     throw new InvalidPositionException("Position does not belong to a valid NodeList");
                 }
@@ -160,36 +166,36 @@ public class PriorityQueue {
             return size == 0;
         }
 
-        public Position<E> first() throws EmptyListException {
+        public Position<K> first() throws EmptyListException {
             if (isEmpty()) {
                 throw new EmptyListException("List is Empty.");
             }
             return header.getNext();
         }
 
-        public Position<E> last() throws EmptyListException {
+        public Position<K> last() throws EmptyListException {
             if (isEmpty()) {
                 throw new EmptyListException("List is Empty.");
             }
             return trailer.getPrev();
         }
 
-        public Position<E> next(Position<E> p) throws InvalidPositionException, BoundaryViolationException {
-            DNode<E> currentPosition = checkPosition(p);
+        public Position<K> next(Position<K> p) throws InvalidPositionException, BoundaryViolationException {
+            DNode<K> currentPosition = checkPosition(p);
 
             return currentPosition.getNext();
         }
 
-        public Position<E> prev(Position<E> p) throws InvalidPositionException, BoundaryViolationException {
-            DNode<E> currentPosition = checkPosition(p);
+        public Position<K> prev(Position<K> p) throws InvalidPositionException, BoundaryViolationException {
+            DNode<K> currentPosition = checkPosition(p);
 
             return currentPosition.getPrev();
         }
 
-        public void addFirst(E e) {
+        public void addFirst(K e) {
 
-            DNode<E> first = header.getNext();
-            DNode<E> newNode = new DNode<E>(e, first, header);
+            DNode<K> first = header.getNext();
+            DNode<K> newNode = new DNode<K>(e, first, header);
 
             header.setNext(newNode);
             first.setPrev(newNode);
@@ -197,9 +203,9 @@ public class PriorityQueue {
             size++;
         }
 
-        public void addLast(E e) {
-            DNode<E> last = trailer.getPrev();
-            DNode<E> newNode = new DNode<E>(e, last, trailer);
+        public void addLast(K e) {
+            DNode<K> last = trailer.getPrev();
+            DNode<K> newNode = new DNode<K>(e, last, trailer);
 
             last.setNext(newNode);
             trailer.setPrev(newNode);
@@ -207,10 +213,10 @@ public class PriorityQueue {
             size++;
         }
 
-        public void addAfter(Position<E> p, E e) throws InvalidPositionException {
-            DNode<E> node = checkPosition(p);
-            DNode<E> next = node.getNext();
-            DNode<E> newNode = new DNode<E>(e, node.getNext(), node);
+        public void addAfter(Position<K> p, K e) throws InvalidPositionException {
+            DNode<K> node = checkPosition(p);
+            DNode<K> next = node.getNext();
+            DNode<K> newNode = new DNode<K>(e, node.getNext(), node);
 
             node.setNext(newNode);
             next.setPrev(newNode);
@@ -219,7 +225,7 @@ public class PriorityQueue {
 
         }
 
-        public void addBefore(Position<E> p, E e)
+        public void addBefore(Position<K> p, K e)
                 throws InvalidPositionException, EmptyListException, BoundaryViolationException {
             p = checkPosition(p);
 
@@ -229,31 +235,31 @@ public class PriorityQueue {
                 addAfter(prev(p), e);
         }
 
-        public E remove(Position<E> p) throws InvalidPositionException {
-            DNode<E> v = checkPosition(p);
+        public K remove(Position<K> p) throws InvalidPositionException {
+            DNode<K> v = checkPosition(p);
             size--;
-            DNode<E> vPrev = v.getPrev();
-            DNode<E> vNext = v.getNext();
+            DNode<K> vPrev = v.getPrev();
+            DNode<K> vNext = v.getNext();
             vPrev.setNext(vNext);
             vNext.setPrev(vPrev);
-            E vElem = v.element();
+            K vElem = v.element();
             v.setNext(null);
             v.setPrev(null);
             return vElem;
         }
 
-        public E set(Position<E> p, E e) throws InvalidPositionException {
-            DNode<E> v = checkPosition(p);
-            E oldElt = v.element();
+        public K set(Position<K> p, K e) throws InvalidPositionException {
+            DNode<K> v = checkPosition(p);
+            K oldElt = v.element();
             v.setElement(e);
             return oldElt;
         }
 
-        public Iterable<Position<E>> positions()
+        public Iterable<Position<K>> positions()
                 throws EmptyListException, InvalidPositionException, BoundaryViolationException {
-            PositionList<Position<E>> P = new NodePositionList<Position<E>>();
+            PositionList<Position<K>> P = new NodePositionList<Position<K>>();
             if (!isEmpty()) {
-                Position<E> p = first();
+                Position<K> p = first();
                 while (true) {
                     P.addLast(p);
                     if (p == last()) {
@@ -266,11 +272,11 @@ public class PriorityQueue {
 
         }
 
-        public class ElementIterator implements Iterator<E> {
-            protected PositionList<E> list;
-            protected Position<E> cursor;
+        public class ElementIterator implements Iterator<K> {
+            protected PositionList<K> list;
+            protected Position<K> cursor;
 
-            public ElementIterator(PositionList<E> L) {
+            public ElementIterator(PositionList<K> L) {
                 list = L;
 
                 try {
@@ -284,11 +290,11 @@ public class PriorityQueue {
                 return cursor != null;
             }
 
-            public E next() {
+            public K next() {
                 if (cursor == null)
                     throw new NoSuchElementException("No Next Element...!");
 
-                E toReturn;
+                K toReturn;
 
                 try {
                     toReturn = cursor.element();
@@ -306,13 +312,13 @@ public class PriorityQueue {
 
         }
 
-        public Iterator<E> iterator() {
+        public Iterator<K> iterator() {
             return new ElementIterator(this);
         }
     }
 
-    public static interface Entry<E, V> {
-        E getKey();
+    public static interface Entry<K, V> {
+        K getKey();
 
         V getValue();
     }
@@ -397,10 +403,8 @@ public class PriorityQueue {
             }
         }
 
-        protected static class LocationAwareEntry<K, V> extends MyEntry<K, V> implements Entry<K, V> {
+        protected static class LocationAwareEntry<K, V> extends MyEntry<K, V> {
             private Position<Entry<K, V>> loc;
-            K k;
-            V v;
 
             public LocationAwareEntry(K key, V value) {
                 super(key, value);
@@ -423,13 +427,13 @@ public class PriorityQueue {
 
             protected K setKey(K key) {
                 K oldKey = getKey();
-                k = key;
+                this.key = key;
                 return oldKey;
             }
 
             protected V setValue(V value) {
                 V oldValue = getValue();
-                v = value;
+                this.value = value;
                 return oldValue;
             }
 
@@ -455,9 +459,9 @@ public class PriorityQueue {
             c = comp;
         }
 
-        public class DefaultComparator<E> implements Comparator<E> {
-            public int compare(E a, E b) throws ClassCastException {
-                return ((Comparable<E>) a).compareTo(b);
+        public class DefaultComparator<K> implements Comparator<K> {
+            public int compare(K a, K b) throws ClassCastException {
+                return ((Comparable<K>) a).compareTo(b);
             }
         }
 
@@ -469,17 +473,17 @@ public class PriorityQueue {
             }
         }
 
-        protected static class MyEntry<E, V> implements Entry<E, V> {
+        protected static class MyEntry<K, V> implements Entry<K, V> {
 
-            private E key;
-            private V value;
+            protected K key;
+            protected V value;
 
-            MyEntry(E key, V value) {
+            MyEntry(K key, V value) {
                 this.key = key;
                 this.value = value;
             }
 
-            public E getKey() {
+            public K getKey() {
                 return key;
             }
 
@@ -552,70 +556,70 @@ public class PriorityQueue {
 
     // Interface Trees
 
-    public interface Trees<E> {
+    public interface Trees<K> {
 
         public int size();
 
         public boolean isEmpty();
 
-        public Iterator<E> iterator()
+        public Iterator<K> iterator()
                 throws InvalidPositionException, EmptyTreeException, BoundaryViolationException;
 
-        // public Iterable<Position<E>> positions()
+        // public Iterable<Position<K >> positions()
         // throws InvalidPositionException, EmptyTreeException,
         // BoundaryViolationException;
 
-        public E replace(Position<E> v, E e) throws InvalidPositionException;
+        public K replace(Position<K> v, K e) throws InvalidPositionException;
 
-        public Position<E> root() throws EmptyTreeException;
+        public Position<K> root() throws EmptyTreeException;
 
-        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+        public Position<K> parent(Position<K> v) throws InvalidPositionException, BoundaryViolationException;
 
-        // public Iterable<Position<E>> children(Position<E> v)
+        // public Iterable<Position<K >> children(Position<K > v)
         // throws InvalidPositionException, BoundaryViolationException;
 
-        public boolean isInternal(Position<E> v) throws InvalidPositionException;
+        public boolean isInternal(Position<K> v) throws InvalidPositionException;
 
-        public boolean isExternal(Position<E> v) throws InvalidPositionException;
+        public boolean isExternal(Position<K> v) throws InvalidPositionException;
 
-        public boolean isRoot(Position<E> v) throws InvalidPositionException, EmptyTreeException;
+        public boolean isRoot(Position<K> v) throws InvalidPositionException, EmptyTreeException;
     }
 
     // Interface BinaryTree
 
-    public interface BinaryTree<E> extends Trees<E> {
-        public Position<E> left(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+    public interface BinaryTree<K> extends Trees<K> {
+        public Position<K> left(Position<K> v) throws InvalidPositionException, BoundaryViolationException;
 
-        public Position<E> right(Position<E> v) throws InvalidPositionException, BoundaryViolationException;
+        public Position<K> right(Position<K> v) throws InvalidPositionException, BoundaryViolationException;
 
-        public boolean hasLeft(Position<E> v) throws InvalidPositionException;
+        public boolean hasLeft(Position<K> v) throws InvalidPositionException;
 
-        public boolean hasRight(Position<E> v) throws InvalidPositionException;
+        public boolean hasRight(Position<K> v) throws InvalidPositionException;
     }
 
     // CompleteBinaryTree Interface
 
-    public interface CompleteBinaryTree<E> extends BinaryTree<E> {
-        public Position<E> add(E elem);
+    public interface CompleteBinaryTree<K> extends BinaryTree<K> {
+        public Position<K> add(K elem);
 
-        public E remove() throws EmptyTreeException;
+        public K remove() throws EmptyTreeException;
     }
 
     // ArrayListCompleteBinaryTree class
 
-    public static class ArrayListCompleteBinaryTree<E> implements CompleteBinaryTree<E> {
-        protected ArrayList<BTPos<E>> T;
+    public static class ArrayListCompleteBinaryTree<K> implements CompleteBinaryTree<K> {
+        protected ArrayList<BTPos<K>> T;
 
-        protected static class BTPos<E> implements Position<E> {
-            E element;
+        protected static class BTPos<K> implements Position<K> {
+            K element;
             int index;
 
-            public BTPos(E element, int index) {
+            public BTPos(K element, int index) {
                 this.element = element;
                 this.index = index;
             }
 
-            public E element() {
+            public K element() {
                 return element;
             }
 
@@ -623,15 +627,15 @@ public class PriorityQueue {
                 return index;
             }
 
-            public E setElement(E elt) {
-                E temp = element;
+            public K setElement(K elt) {
+                K temp = element;
                 element = elt;
                 return temp;
             }
         }
 
         public ArrayListCompleteBinaryTree() {
-            T = new ArrayList<BTPos<E>>();
+            T = new ArrayList<BTPos<K>>();
 
             T.add(0, null);
         }
@@ -644,90 +648,90 @@ public class PriorityQueue {
             return (size() == 0);
         }
 
-        public boolean isInternal(Position<E> v) throws InvalidPositionException {
+        public boolean isInternal(Position<K> v) throws InvalidPositionException {
             return hasLeft(v);
         }
 
-        public boolean isExternal(Position<E> v) throws InvalidPositionException {
+        public boolean isExternal(Position<K> v) throws InvalidPositionException {
             return !isInternal(v);
         }
 
-        protected BTPos<E> checkPosition(Position<E> v) throws InvalidPositionException {
+        protected BTPos<K> checkPosition(Position<K> v) throws InvalidPositionException {
             if (v == null || !(v instanceof BTPos)) {
                 throw new InvalidPositionException("Position is invalid");
             }
-            return (BTPos<E>) v;
+            return (BTPos<K>) v;
         }
 
-        public boolean isRoot(Position<E> v) throws InvalidPositionException {
-            BTPos<E> vv = checkPosition(v);
+        public boolean isRoot(Position<K> v) throws InvalidPositionException {
+            BTPos<K> vv = checkPosition(v);
 
             return vv.index == 1;
         }
 
-        public Position<E> root() throws EmptyTreeException {
+        public Position<K> root() throws EmptyTreeException {
             if (isEmpty()) {
                 throw new EmptyTreeException("The Tree is Empty..");
             }
             return T.get(1);
         }
 
-        public Position<E> left(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+        public Position<K> left(Position<K> v) throws InvalidPositionException, BoundaryViolationException {
             if (!hasLeft(v)) {
                 throw new BoundaryViolationException("No Left Child");
             }
-            BTPos<E> vv = checkPosition(v);
+            BTPos<K> vv = checkPosition(v);
             return T.get(2 * vv.index());
         }
 
-        public Position<E> right(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+        public Position<K> right(Position<K> v) throws InvalidPositionException, BoundaryViolationException {
             if (!hasRight(v)) {
                 throw new BoundaryViolationException("No Right Child");
             }
-            BTPos<E> vv = checkPosition(v);
+            BTPos<K> vv = checkPosition(v);
             return T.get(2 * vv.index() + 1);
         }
 
-        public boolean hasLeft(Position<E> v) throws InvalidPositionException {
-            BTPos<E> vv = checkPosition(v);
+        public boolean hasLeft(Position<K> v) throws InvalidPositionException {
+            BTPos<K> vv = checkPosition(v);
             return 2 * vv.index() <= size();
         }
 
-        public boolean hasRight(Position<E> v) throws InvalidPositionException {
-            BTPos<E> vv = checkPosition(v);
+        public boolean hasRight(Position<K> v) throws InvalidPositionException {
+            BTPos<K> vv = checkPosition(v);
             return 2 * vv.index() + 1 <= size();
         }
 
-        public E replace(Position<E> v, E e) throws InvalidPositionException {
-            BTPos<E> vv = checkPosition(v);
+        public K replace(Position<K> v, K e) throws InvalidPositionException {
+            BTPos<K> vv = checkPosition(v);
             return vv.setElement(e);
         }
 
-        public Position<E> parent(Position<E> v) throws InvalidPositionException, BoundaryViolationException {
+        public Position<K> parent(Position<K> v) throws InvalidPositionException, BoundaryViolationException {
             if (isRoot(v)) {
                 throw new BoundaryViolationException("No Parent");
             }
-            BTPos<E> vv = checkPosition(v);
+            BTPos<K> vv = checkPosition(v);
             return T.get(vv.index / 2);
         }
 
-        public Position<E> add(E elem) {
+        public Position<K> add(K elem) {
             int i = T.size();
-            BTPos<E> p = new BTPos<E>(elem, i);
+            BTPos<K> p = new BTPos<K>(elem, i);
             T.add(p);
             return p;
         }
 
-        public E remove() throws EmptyTreeException {
+        public K remove() throws EmptyTreeException {
             if (isEmpty()) {
                 throw new EmptyTreeException("The Tree is Empty..");
             }
             return T.remove(size()).element();
         }
 
-        public Iterator<E> iterator()
+        public Iterator<K> iterator()
                 throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
-            ArrayList<E> list = new ArrayList<>();
+            ArrayList<K> list = new ArrayList<>();
 
             for (int i = 1; i < T.size(); i++) {
                 if (T.get(i) != null)
@@ -747,23 +751,56 @@ public class PriorityQueue {
 
     }
 
+    // Java Heap Implementation BubbleUp and BubbleDown Technique (MaxHeap)
+
+    public static class MaxHeapPriorityQueue<K, V> {
+        protected HeapPriorityQueue<K, V> heap;
+
+        public class faultComparator<K> implements Comparator<K> {
+            public int compare(K a, K b) throws ClassCastException {
+                return ((Comparable<K>) b).compareTo(a);
+            }
+        }
+
+        public MaxHeapPriorityQueue() {
+            Comparator<K> reverse = new faultComparator<>();
+            heap = new HeapPriorityQueue<>(reverse);
+
+        }
+
+        public Entry<K, V> removeMax() throws EmptyPriorityQueueException, EmptyTreeException, InvalidPositionException,
+                BoundaryViolationException {
+            return heap.removeMin();
+        }
+
+        public Entry<K, V> insert(K k, V v) throws Exception {
+            return heap.insert(k, v);
+        }
+
+
+        public Entry<K, V> max() throws Exception {
+            return heap.min();
+        }
+
+    }
+
     // Java Heap Implementation BubbleUp and BubbleDown Technique
 
-    public static class HeapPriorityQueue<E, V> implements IPriorityQueue<E, V> {
-        protected CompleteBinaryTree<Entry<E, V>> heap;
-        protected Comparator<E> comp;
+    public static class HeapPriorityQueue<K, V> implements IPriorityQueue<K, V> {
+        protected CompleteBinaryTree<Entry<K, V>> heap;
+        protected Comparator<K> comp;
 
-        protected static class MyEntry<E, V> implements Entry<E, V> {
+        protected static class MyEntry<K, V> implements Entry<K, V> {
 
-            private E key;
+            private K key;
             private V value;
 
-            MyEntry(E key, V value) {
+            MyEntry(K key, V value) {
                 this.key = key;
                 this.value = value;
             }
 
-            public E getKey() {
+            public K getKey() {
                 return key;
             }
 
@@ -777,17 +814,17 @@ public class PriorityQueue {
         }
 
         public HeapPriorityQueue() {
-            heap = new ArrayListCompleteBinaryTree<Entry<E, V>>();
-            comp = new DefaultComparator<E>();
+            heap = new ArrayListCompleteBinaryTree<>();
+            comp = new DefaultComparator<K>();
         }
 
-        public class DefaultComparator<E> implements Comparator<E> {
-            public int compare(E a, E b) throws ClassCastException {
-                return ((Comparable<E>) a).compareTo(b);
+        public class DefaultComparator<K> implements Comparator<K> {
+            public int compare(K a, K b) throws ClassCastException {
+                return ((Comparable<K>) a).compareTo(b);
             }
         }
 
-        public HeapPriorityQueue(Comparator<E> c) {
+        public HeapPriorityQueue(Comparator<K> c) {
             heap = new ArrayListCompleteBinaryTree<>();
             comp = c;
         }
@@ -800,7 +837,7 @@ public class PriorityQueue {
             return heap.size() == 0;
         }
 
-        public Entry<E, V> min() throws EmptyPriorityQueueException, EmptyTreeException {
+        public Entry<K, V> min() throws EmptyPriorityQueueException, EmptyTreeException {
             if (isEmpty()) {
                 throw new EmptyPriorityQueueException("Priority Queue is Empty");
             } else {
@@ -808,7 +845,7 @@ public class PriorityQueue {
             }
         }
 
-        public void checkKey(E key) throws InvalidKeyException {
+        public void checkKey(K key) throws InvalidKeyException {
             try {
                 comp.compare(key, key);
             } catch (ClassCastException | NullPointerException e) {
@@ -816,9 +853,9 @@ public class PriorityQueue {
             }
         }
 
-        protected void upHeap(Position<Entry<E, V>> v)
+        protected void upHeap(Position<Entry<K, V>> v)
                 throws EmptyTreeException, InvalidPositionException, BoundaryViolationException {
-            Position<Entry<E, V>> u;
+            Position<Entry<K, V>> u;
             while (!heap.isRoot(v)) {
                 u = heap.parent(v);
                 if (comp.compare(u.element().getKey(), v.element().getKey()) <= 0) {
@@ -829,17 +866,17 @@ public class PriorityQueue {
             }
         }
 
-        public Entry<E, V> insert(E key, V value) throws InvalidKeyException, EmptyListException,
+        public Entry<K, V> insert(K key, V value) throws InvalidKeyException, EmptyListException,
                 InvalidPositionException, BoundaryViolationException, EmptyTreeException {
             checkKey(key);
-            Entry<E, V> entry = new MyEntry<E, V>(key, value);
+            Entry<K, V> entry = new MyEntry<K, V>(key, value);
             upHeap(heap.add(entry));
             return entry;
         }
 
-        public void downHeap(Position<Entry<E, V>> r) throws InvalidPositionException, BoundaryViolationException {
+        public void downHeap(Position<Entry<K, V>> r) throws InvalidPositionException, BoundaryViolationException {
             while (heap.isInternal(r)) {
-                Position<Entry<E, V>> s;
+                Position<Entry<K, V>> s;
                 if (!heap.hasRight(r)) {
                     s = heap.left(r);
                 } else if (comp.compare(heap.left(r).element().getKey(), heap.right(r).element().getKey()) <= 0) {
@@ -857,20 +894,20 @@ public class PriorityQueue {
             }
         }
 
-        protected void swap(Position<Entry<E, V>> x, Position<Entry<E, V>> y) throws InvalidPositionException {
-            Entry<E, V> temp = x.element();
+        protected void swap(Position<Entry<K, V>> x, Position<Entry<K, V>> y) throws InvalidPositionException {
+            Entry<K, V> temp = x.element();
             heap.replace(x, y.element());
             heap.replace(y, temp);
 
         }
 
-        public Entry<E, V> removeMin()
+        public Entry<K, V> removeMin()
                 throws EmptyPriorityQueueException, EmptyTreeException, InvalidPositionException,
                 BoundaryViolationException {
             if (isEmpty()) {
                 throw new EmptyPriorityQueueException("Priority queue is Empty");
             }
-            Entry<E, V> min = heap.root().element();
+            Entry<K, V> min = heap.root().element();
             if (size() == 1) {
                 heap.remove();
             } else {
@@ -885,19 +922,18 @@ public class PriorityQueue {
         }
 
         public void traverse() throws InvalidPositionException, EmptyTreeException, BoundaryViolationException {
-            Iterator<Entry<E, V>> i = heap.iterator();
+            Iterator<Entry<K, V>> i = heap.iterator();
             while (i.hasNext()) {
-                Entry<E, V> e = i.next();
+                Entry<K, V> e = i.next();
                 System.out.println(e.getKey() + " " + e.getValue());
             }
         }
-
     }
 
     public static void main(String args[])
             throws EmptyPriorityQueueException, InvalidKeyException, EmptyTreeException, EmptyListException,
             InvalidPositionException,
-            BoundaryViolationException {
+            BoundaryViolationException, Exception {
         // SortedListPriorityQueue<Integer, String> SPQ = new
         // SortedListPriorityQueue<>();
 
@@ -917,12 +953,13 @@ public class PriorityQueue {
         // BT.traverse();
 
         // Heaps Using BubbleUp and BubbleDown approach...
-        HeapPriorityQueue<Integer, String> HPQ = new HeapPriorityQueue<>();
-        HPQ.insert(5, "Jack");
-        HPQ.insert(10, "James");
-        HPQ.insert(1, "John");
-        HPQ.insert(2, "Cena");
-        HPQ.traverse();
+        MaxHeapPriorityQueue<Integer, String> HPQ = new MaxHeapPriorityQueue<>();
+        HPQ.insert(20, "jack");
+        HPQ.insert(30, "jack");
+        HPQ.insert(10, "jack");
+        HPQ.insert(5, "jack");
+        // System.out.println(HPQ.removeMax());
+        System.out.println(HPQ.max());
 
     }
 }

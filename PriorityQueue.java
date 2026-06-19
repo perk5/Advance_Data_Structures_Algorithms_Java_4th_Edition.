@@ -384,7 +384,7 @@ public class PriorityQueue {
                 EmptyListException, InvalidPositionException, BoundaryViolationException {
             checkKey(k);
             checkEntry(entry);
-            LocationAwareEntry<K, V> e = (LocationAwareEntry<K, V>) entry;
+            LocationAwareEntry<K, V> e = (LocationAwareEntry<K, V>) remove(entry);
             K oldKey = e.setKey(k);
             insertEntry(e);
             e.setLocation(actionPos);
@@ -441,6 +441,7 @@ public class PriorityQueue {
 
     }
 
+    
     // SortingList PriorityQueue......
 
     public static class SortedListPriorityQueue<K, V> implements IPriorityQueue<K, V> {
@@ -464,6 +465,8 @@ public class PriorityQueue {
                 return ((Comparable<K>) a).compareTo(b);
             }
         }
+
+        
 
         protected void checkKey(K k) throws InvalidKeyException {
             try {
@@ -777,7 +780,6 @@ public class PriorityQueue {
             return heap.insert(k, v);
         }
 
-
         public Entry<K, V> max() throws Exception {
             return heap.min();
         }
@@ -934,13 +936,11 @@ public class PriorityQueue {
             throws EmptyPriorityQueueException, InvalidKeyException, EmptyTreeException, EmptyListException,
             InvalidPositionException,
             BoundaryViolationException, Exception {
-        // SortedListPriorityQueue<Integer, String> SPQ = new
-        // SortedListPriorityQueue<>();
-
-        // SPQ.insert(2, "John");
-        // SPQ.insert(9, "Rohan");
-        // SPQ.insert(1, "Aaron");
-        // SPQ.traverseSortedList();
+        SortedListPriorityQueue<Integer, String> SPQ = new SortedListPriorityQueue<>();
+        SPQ.insert(2, "John");
+        SPQ.insert(9, "Rohan");
+        SPQ.insert(1, "Aaron");
+        SPQ.traverseSortedList();
         // SPQ.removeMin();
         // System.out.println();
         // SPQ.traverseSortedList();
@@ -953,13 +953,13 @@ public class PriorityQueue {
         // BT.traverse();
 
         // Heaps Using BubbleUp and BubbleDown approach...
-        MaxHeapPriorityQueue<Integer, String> HPQ = new MaxHeapPriorityQueue<>();
-        HPQ.insert(20, "jack");
-        HPQ.insert(30, "jack");
-        HPQ.insert(10, "jack");
-        HPQ.insert(5, "jack");
-        // System.out.println(HPQ.removeMax());
-        System.out.println(HPQ.max());
+        HeapPriorityQueue<Integer, String> HPQ = new HeapPriorityQueue<>();
+    //     HPQ.insert(20, "jack");
+    //     HPQ.insert(30, "Miter");
+    //     HPQ.insert(10, "Peter");
+    //     HPQ.insert(5, "Raj");
+    //     // System.out.println(HPQ.removeMax());
+    //    HPQ.traverse();
 
     }
 }

@@ -92,6 +92,50 @@ public class PriorityQueueUnsortedList {
 
         }
 
+        public void maxHeap() {
+            int n = size();
+
+            for (int i = n / 2 - 1; i >= 0; i--) {
+                heapify(i , n);
+            }
+
+            for (int i = n - 1; i > 0 ; i--){
+                swap(0, i);
+                heapify(0, i);
+            }
+
+        }
+
+        public void heapify(int currentIndex, int length) {
+
+            while (true) {
+                int highest = currentIndex;
+                int left = currentIndex * 2 + 1;
+                int right = currentIndex * 2 + 2;
+                if (left < length && list.get(currentIndex).getKey().compareTo(list.get(left).getKey()) < 0) {
+                    highest = left;
+                }
+
+                if (right < length && list.get(highest).getKey().compareTo(list.get(right).getKey()) < 0) {
+                    highest = right;
+                }
+
+                if (highest == currentIndex) {
+                    break;
+                }
+
+                swap(currentIndex, highest);
+                currentIndex = highest;
+               
+            }
+        }
+
+        public void swap(int current, int highest) {
+            MyEntry<K, V> temp = list.get(current);
+            list.set(current, list.get(highest));
+            list.set(highest, temp);
+        }
+
         public void traverse() {
             for (Entry<K, V> e : list) {
                 System.out.println(e.getKey());
@@ -107,15 +151,23 @@ public class PriorityQueueUnsortedList {
         list.insert(14, "Raj");
 
         list.insert(94, "Rama");
+        list.insert(11, "James");
+        list.insert(15, "John");
+
+        list.insert(2, "Cena");
+        list.insert(9, "Kara");
+        list.insert(16, "Kayla");
 
         list.traverse();
-        System.out.println();
-        list.removeMin();
         System.out.println();
 
         list.traverse();
         System.out.println();
         System.out.println(list.min().getKey());
+        list.maxHeap();
+        System.out.println();
+        list.traverse();
+
     }
 
 }
